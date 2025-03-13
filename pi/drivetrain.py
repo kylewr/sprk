@@ -9,12 +9,6 @@ import termios
 orig_settings = termios.tcgetattr(sys.stdin)
 
 tty.setcbreak(sys.stdin)
-x = 0
-while x != chr(27): # ESC
-    x=sys.stdin.read(1)[0]
-    print("You pressed", x)
-
-termios.tcsetattr(sys.stdin, termios.TCSADRAIN, orig_settings)    
 
 class MecanumIOMap:
     def __init__(self, fl_h, fl_l, fr_h, fr_l, br_h, br_l, bl_h, bl_l):
@@ -78,29 +72,38 @@ r = 0;
 
 print("DRIVE!")
 
-while True:
+cha = 0
+
+try:
     while True:
-        b = False;
-        if (keyboard.is_pressed('w')):
-            y += 1
-            b = True
-        if (keyboard.is_pressed('s')):
-            y -= 1
-            b = True
-        if (keyboard.is_pressed('a')):
-            x += 1
-            b = True
-        if (keyboard.is_pressed('d')):
-            x -= 1
-            b = True
-        
-        if b: break
+        while cha != chr(27): # ESC
+            cha=sys.stdin.read(1)[0]
+            print("You pressed", cha)
+            b = False;
+            if (keyboard.is_pressed('w')):
+                y += 1
+                b = True
+            if (keyboard.is_pressed('s')):
+                y -= 1
+                b = True
+            if (keyboard.is_pressed('a')):
+                x += 1
+                b = True
+            if (keyboard.is_pressed('d')):
+                x -= 1
+                b = True
+            
+            if b: break
 
-    if (not drive.isStopped):
-        drive.drive(x, y, r)
+        if (not drive.isStopped):
+            drive.drive(x, y, r)
 
-    x = 0
-    y = 0
-    r = 0
+        x = 0
+        y = 0
+        r = 0
 
-    sleep(0.05)
+        sleep(0.05)
+except KeyboardInterrupt:
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, orig_settings)
+    drive.stop()
+    gpio.cleanup()
