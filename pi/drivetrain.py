@@ -103,17 +103,22 @@ r = 0;
 print("DRIVE!")
 
 while True:
-    try:
+    while True:
+        b = False;
         if (keyboard.is_pressed('w')):
             y += 1
+            b = False
         if (keyboard.is_pressed('s')):
             y -= 1
+            b = False
         if (keyboard.is_pressed('a')):
             x += 1
+            b = False
         if (keyboard.is_pressed('d')):
             x -= 1
-    except:
-        pass
+            b = False
+        
+        if b: break
 
     if (not drive.isStopped):
         drive.drive(x, y, r)
