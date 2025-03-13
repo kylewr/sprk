@@ -104,7 +104,6 @@ print("DRIVE!")
 
 while True:
     while True:
-        print("a")
         b = False;
         if (keyboard.is_pressed('w')):
             y += 1
