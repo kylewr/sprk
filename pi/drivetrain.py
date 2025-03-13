@@ -104,19 +104,20 @@ print("DRIVE!")
 
 while True:
     while True:
+        print("a")
         b = False;
         if (keyboard.is_pressed('w')):
             y += 1
-            b = False
+            b = True
         if (keyboard.is_pressed('s')):
             y -= 1
-            b = False
+            b = True
         if (keyboard.is_pressed('a')):
             x += 1
-            b = False
+            b = True
         if (keyboard.is_pressed('d')):
             x -= 1
-            b = False
+            b = True
         
         if b: break
 
