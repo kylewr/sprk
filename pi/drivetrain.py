@@ -102,13 +102,13 @@ while True:
 
 
     if (l == 'w'):
-        x += 1
-    if (l == 's'):
-        x -= 1
-    if (l == 'a'):
         y += 1
-    if (l == 'd'):
+    if (l == 's'):
         y -= 1
+    if (l == 'a'):
+        x += 1
+    if (l == 'd'):
+        x -= 1
     
     drive.drive(x, y, r)
 
@@ -116,4 +116,4 @@ while True:
     y = 0
     r = 0
 
-    sleep(20)
+    sleep(50)
