@@ -35,7 +35,7 @@ class _GetchWindows:
 
     def __call__(self):
         import msvcrt
-        return msvcrt.getch()
+        return msvcrt.getch().decode('utf-8 ')
 
 getch = _Getch()
 
@@ -95,20 +95,19 @@ drive = MecanumDrive(ioMap)
 x = 0;
 y = 0;
 r = 0;
+import keyboard
 while True:
-    l = getch()
-    if (l == 'q'):
-        break
-
-
-    if (l == 'w'):
-        y += 1
-    if (l == 's'):
-        y -= 1
-    if (l == 'a'):
-        x += 1
-    if (l == 'd'):
-        x -= 1
+    try:
+        if (keyboard.is_pressed('w')):
+            y += 1
+        if (keyboard.is_pressed('s')):
+            y -= 1
+        if (keyboard.is_pressed('a')):
+            x += 1
+        if (keyboard.is_pressed('d')):
+            x -= 1
+    except:
+        pass
     
     drive.drive(x, y, r)
 
