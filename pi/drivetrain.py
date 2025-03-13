@@ -87,10 +87,10 @@ try:
                 y -= 1
                 b = True
             if (cha == 'a'):
-                x += 1
+                x -= 1
                 b = True
             if (cha == 'd'):
-                x -= 1
+                x += 1
                 b = True
             
             if b: break
