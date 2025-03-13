@@ -1,0 +1,7 @@
+{
+    "key": "shift+f5",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": {
+        "text": "echo hi"
+    }
+}

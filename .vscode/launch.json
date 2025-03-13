@@ -1,0 +1,9 @@
+{
+    "configurations": [
+        {
+            // ...
+            "preLaunchTask": "echotest", // The name of the task defined above
+            // ...
+        }
+    ]   
+}
