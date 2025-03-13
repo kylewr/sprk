@@ -45,7 +45,7 @@ class MecanumDrive:
 
 gpio.setmode(gpio.BOARD)
 
-ioMap = MecanumIOMap(5, 6, 13, 19, 27, 22, 4, 17)
+ioMap = MecanumIOMap(5, 6, 13, 19, 4, 17, 27, 2)
 drive = MecanumDrive(ioMap)
 
 while True:
