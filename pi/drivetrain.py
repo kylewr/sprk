@@ -2,43 +2,19 @@ import RPi.GPIO as gpio
 import keyboard
 from time import sleep
 
-class _Getch:
-    """Gets a single character from standard input.  Does not echo to the
-screen."""
-    def __init__(self):
-        try:
-            self.impl = _GetchWindows()
-        except ImportError:
-            self.impl = _GetchUnix()
+import tty
+import sys
+import termios
 
-    def __call__(self): return self.impl()
+orig_settings = termios.tcgetattr(sys.stdin)
 
+tty.setcbreak(sys.stdin)
+x = 0
+while x != chr(27): # ESC
+    x=sys.stdin.read(1)[0]
+    print("You pressed", x)
 
-class _GetchUnix:
-    def __init__(self):
-        import tty, sys
-
-    def __call__(self):
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
-
-class _GetchWindows:
-    def __init__(self):
-        import msvcrt
-
-    def __call__(self):
-        import msvcrt
-        return msvcrt.getch().decode('utf-8 ')
-
-getch = _Getch()
+termios.tcsetattr(sys.stdin, termios.TCSADRAIN, orig_settings)    
 
 class MecanumIOMap:
     def __init__(self, fl_h, fl_l, fr_h, fr_l, br_h, br_l, bl_h, bl_l):
