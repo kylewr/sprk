@@ -15,7 +15,7 @@ class MecanumIOMap:
         self.initOut()
     
     def initOut(self) -> None:
-        [gpio.setmode(pin, gpio.OUT) for pin in self.all]
+        [gpio.setup(pin, gpio.OUT) for pin in self.all]
     
     def setSpeed(self, module: int, speed: int) -> None:
         high = self.all[module * 2]
