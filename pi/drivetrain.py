@@ -100,6 +100,8 @@ x = 0;
 y = 0;
 r = 0;
 
+print("DRIVE!")
+
 while True:
     try:
         if (keyboard.is_pressed('w')):
@@ -120,4 +122,4 @@ while True:
     y = 0
     r = 0
 
-    sleep(50)
+    sleep(0.05)
