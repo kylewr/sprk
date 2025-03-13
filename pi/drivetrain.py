@@ -80,16 +80,16 @@ try:
             cha=sys.stdin.read(1)[0]
             print("You pressed", cha)
             b = False;
-            if (keyboard.is_pressed('w')):
+            if (cha == 'w'):
                 y += 1
                 b = True
-            if (keyboard.is_pressed('s')):
+            if (cha == 's'):
                 y -= 1
                 b = True
-            if (keyboard.is_pressed('a')):
+            if (cha == 'a'):
                 x += 1
                 b = True
-            if (keyboard.is_pressed('d')):
+            if (cha == 'd'):
                 x -= 1
                 b = True
             
