@@ -38,7 +38,11 @@ class MecanumDrive:
         self.ioMap.setSpeed(1, y - x - r)
         self.ioMap.setSpeed(2, y + x - r)
         self.ioMap.setSpeed(3, y - x + r)
+        self.log(x, y, r)
     
+    def log(self, x, y, r) -> None:
+        print(f"X: {x}, Y: {y}, R: {r}")
+
     def stop(self) -> None:
         self.ioMap.stop()
 
