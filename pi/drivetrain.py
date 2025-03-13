@@ -45,10 +45,10 @@ class MecanumDrive:
         self.isStopped = True
     
     def drive(self, x, y, r) -> None:
-        self.ioMap.setSpeed(0, y + x + r)
-        self.ioMap.setSpeed(1, y - x - r)
-        self.ioMap.setSpeed(2, y + x - r)
-        self.ioMap.setSpeed(3, y - x + r)
+        # self.ioMap.setSpeed(0, y + x + r)
+        # self.ioMap.setSpeed(1, y - x - r)
+        # self.ioMap.setSpeed(2, y + x - r)
+        # self.ioMap.setSpeed(3, y - x + r)
         self.log(x, y, r)
         self.isStopped = (abs(x) + abs(y) + abs(r)) == 0
     
@@ -56,7 +56,7 @@ class MecanumDrive:
         print(f"X: {x}, Y: {y}, R: {r}")
 
     def stop(self) -> None:
-        self.ioMap.stop()
+        # self.ioMap.stop()
         self.log(0, 0, 0)
         self.isStopped = True
 
@@ -95,8 +95,7 @@ try:
             
             if b: break
 
-        if (not drive.isStopped):
-            drive.drive(x, y, r)
+        drive.drive(x, y, r)
 
         x = 0
         y = 0
