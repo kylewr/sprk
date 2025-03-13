@@ -96,7 +96,7 @@ x = 0;
 y = 0;
 r = 0;
 while True:
-    l = getch().decode('utf-8')
+    l = getch()
     if (l == 'q'):
         break
 
@@ -115,5 +115,5 @@ while True:
     x = 0
     y = 0
     r = 0
-    
+
     sleep(20)
