@@ -23,10 +23,10 @@ class MecanumIOMap:
         gpio.output(high, gpio.HIGH if speed > 0 else gpio.LOW)
         gpio.output(low, gpio.LOW if speed < 0 else gpio.HIGH)
 
-    def stop(self, module: int) -> None:
+    def stopModule(self, module: int) -> None:
         self.setSpeed(module, 0)
     def stop(self) -> None:
-        [self.stop(i) for i in range(4)]
+        [self.stopModule(i) for i in range(4)]
 
 
 class MecanumDrive:
