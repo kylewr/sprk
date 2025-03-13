@@ -1,4 +1,5 @@
 import RPi.GPIO as gpio
+import keyboard
 from time import sleep
 
 class _Getch:
@@ -71,6 +72,7 @@ class MecanumIOMap:
 class MecanumDrive:
     def __init__(self, io: MecanumIOMap):
         self.ioMap = io
+        self.isStopped = True
     
     def drive(self, x, y, r) -> None:
         self.ioMap.setSpeed(0, y + x + r)
@@ -78,6 +80,7 @@ class MecanumDrive:
         self.ioMap.setSpeed(2, y + x - r)
         self.ioMap.setSpeed(3, y - x + r)
         self.log(x, y, r)
+        self.isStopped = (abs(x) + abs(y) + abs(r)) == 0
     
     def log(self, x, y, r) -> None:
         print(f"X: {x}, Y: {y}, R: {r}")
@@ -85,6 +88,7 @@ class MecanumDrive:
     def stop(self) -> None:
         self.ioMap.stop()
         self.log(0, 0, 0)
+        self.isStopped = True
 
 
 gpio.setmode(gpio.BCM)
@@ -95,7 +99,7 @@ drive = MecanumDrive(ioMap)
 x = 0;
 y = 0;
 r = 0;
-import keyboard
+
 while True:
     try:
         if (keyboard.is_pressed('w')):
@@ -108,8 +112,9 @@ while True:
             x -= 1
     except:
         pass
-    
-    drive.drive(x, y, r)
+
+    if (not drive.isStopped):
+        drive.drive(x, y, r)
 
     x = 0
     y = 0
