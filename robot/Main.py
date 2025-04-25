@@ -2,9 +2,9 @@ import socket
 
 from robotBase.RobotState import RobotState
 from robotBase.simulation.SimState import SimState
-from Robot import Robot
+from Shark import SHARK
 
-def handleTeleop(packet: str, robot: Robot) -> None:
+def handleTeleop(packet: str, robot: SHARK) -> None:
     match packet.split(",")[0]:
         case "s":
             robot.drivetrain.stop()
@@ -33,7 +33,7 @@ def main():
 
     mainSocket.listen(5)
 
-    robot = Robot()
+    robot = SHARK()
     try:
         while True:
             bigBreak = False

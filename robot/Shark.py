@@ -1,23 +1,19 @@
-import threading
-
 from robotBase.RobotState import RobotState
 
 from Telemetry import Telemetry
 from MecanumDrive import MecanumDrive, MecanumIOMap
 from Arm import Arm, ArmIOMap
 
-class Robot:
-    def __init__(self):
-        self.autonThread = None
-
+class SHARK:
+    def __init__(self) -> None:
         self.telemetry = Telemetry()
-
         self.drivetrain = MecanumDrive(MecanumIOMap.getIoPreset())
         self.drivetrain.addTelemetry(self.telemetry)
 
         self.arm = Arm(ArmIOMap.getIoPreset())
         self.arm.addTelemetry(self.telemetry)
 
+        self.autonThread = None
         self.changeState(RobotState.DISABLED)
         self.telemetry.info("Robot initialization complete!")
 

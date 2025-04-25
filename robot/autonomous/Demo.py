@@ -1,7 +1,6 @@
-from Robot import Robot
 from time import sleep
 
-def run(robot: Robot):
+def run(robot):
     robot.drivetrain.stop()
     sleep(1)
 
