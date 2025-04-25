@@ -42,8 +42,10 @@ def main():
             conn, addr = mainSocket.accept()
             print(f'\033[92mConnected to controller. {addr}\033[0m')
 
+            conn.sendall(f"[STATE] DISABLE".encode('utf-8'))
+
             while True:
-                data = conn.recv(16)
+                data = conn.recv(64)
                 if not data:
                     break
                 message = data.decode('utf-8').lower()
@@ -54,11 +56,17 @@ def main():
                 if message.startswith("exit"):
                     bigBreak = True
                     break
-                elif message == "auton":
+                elif message.startswith("auto"):
+                    if (robot.state != RobotState.AUTONOMOUS):
+                        conn.sendall(f"[STATE] AUTONOMOUS".encode('utf-8'))
                     robot.autonomousInit()
                 elif message.startswith("tele"):
+                    if (robot.state != RobotState.TELEOP):
+                        conn.sendall(f"[STATE] TELEOP".encode('utf-8'))
                     robot.teleopInit()
                 elif message.startswith("dis"):
+                    if (robot.state != RobotState.DISABLED):
+                        conn.sendall(f"[STATE] DISABLE".encode('utf-8'))
                     robot.disabledInit()
 
             if (robot.state != RobotState.DISABLED):

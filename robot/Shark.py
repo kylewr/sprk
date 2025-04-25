@@ -1,4 +1,5 @@
 from robotBase.RobotState import RobotState
+from robotBase.simulation.SimState import SimState
 
 from Telemetry import Telemetry
 from MecanumDrive import MecanumDrive, MecanumIOMap
@@ -16,6 +17,8 @@ class SHARK:
         self.autonThread = None
         self.changeState(RobotState.DISABLED)
         self.telemetry.info("Robot initialization complete!")
+        if (SimState.isSimulation()):
+            self.telemetry.info("Simulated robot initialization complete!")
 
     def changeState(self, state: RobotState) -> None:
         if (state != RobotState.AUTONOMOUS and self.autonThread is not None):
