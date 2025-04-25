@@ -1,9 +1,23 @@
 {
     "version": "2.0.0",
-    "tasks": [{
-        "label": "echotest",
-        "command": "echo hi", // Could be any other shell command
-        "args": ["test"],
-        "type": "shell"
-    }]
+    "tasks": [
+        {
+            "label": "Deploy & Run",
+            "type": "shell",
+            "command": "./deploy.bat",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
 }

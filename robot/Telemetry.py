@@ -1,5 +1,5 @@
 import datetime
-from simulation.SimState import SimState
+from robotBase.simulation.SimState import SimState
 from robotBase.RobotState import RobotState
 
 class Telemetry:

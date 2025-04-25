@@ -29,8 +29,8 @@ class Robot:
         self.state = state
         self.telemetry.logRobotState(state.value)
 
-    def createAutonomousThread(self, target) -> threading.Thread:
-        return threading.Thread(target=target, args=(self,), daemon=True)
+    # def createAutonomousThread(self, target) -> threading.Thread:
+    #     return threading.Thread(target=target, args=(self,), daemon=True)
 
     def autonomousInit(self):
         self.changeState(RobotState.AUTONOMOUS)
@@ -38,14 +38,17 @@ class Robot:
         # self.autonThread.start()
     
     def teleopInit(self):
-        self.changeState(RobotState.TELEOP)
+        if (self.state != RobotState.TELEOP):
+            self.drivetrain.stop()
+            self.changeState(RobotState.TELEOP)
 
     def disabledInit(self):
+        if (self.state != RobotState.DISABLED):
+            self.drivetrain.stop()
+            self.changeState(RobotState.DISABLED)
+    
+    def emergencyStop(self):
+        self.drivetrain.estop()
+        self.arm.estop()
         self.changeState(RobotState.DISABLED)
-        self.drivetrain.stop()
-
-    # def interrupt(self):
-    #     self.telemetry.logRaw("Robot interrupted. Shutting down...")
-    #     self.disabledInit()
-    #     self.telemetry.logRaw("Robot shut down.")
 

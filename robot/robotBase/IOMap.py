@@ -1,4 +1,4 @@
-from simulation.SimState import SimState
+from robotBase.simulation.SimState import SimState
 
 class GPIOMap:
     def __init__(self) -> None:
@@ -12,6 +12,6 @@ class GPIOMap:
         [gpio.setup(pin, gpio.OUT) for pin in self.pins]
 
 if SimState.isSimulation():
-    from simulation.GPIOSim import GPIOSim as gpio
+    from robotBase.simulation.GPIOSim import GPIOSim as gpio
 else:
     import RPi.GPIO as gpio # type: ignore

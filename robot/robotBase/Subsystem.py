@@ -7,3 +7,6 @@ class Subsystem:
     def addTelemetry(self, telem: Telemetry) -> None:
         self.telemetry.pass_telem(telem)
         self.telemetry.info("Telemetry added.")
+    
+    def estop(self) -> None:
+        self.telemetry.err("An Emergency Stop was triggered.")
