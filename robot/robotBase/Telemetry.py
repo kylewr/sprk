@@ -3,8 +3,15 @@ from robotBase.simulation.SimState import SimState
 from robotBase.RobotState import RobotState
 
 class Telemetry:
-    def __init__(self):
-        pass
+    def __init__(self) -> None:
+        self._dsMethod = None
+
+    def setDSMessageSupplier(self, sup) -> None:
+        self._dsMethod = sup
+    
+    def sendDS(self, message: str) -> None:
+        if self._dsMethod is not None:
+            self._dsMethod(message)
 
     def getTimestamp(self) -> str:
         return datetime.datetime.now().strftime("%m/%d %H:%M:%S.%f")[:-3]
@@ -13,10 +20,16 @@ class Telemetry:
         print(f"\033[94m[{self.getTimestamp()}] Robot changed state: \033[0m{RobotState(state).name}")
 
     def info(self, message: str) -> None:
-        print(f"[{self.getTimestamp()}] {message}")
+        toSend = f"[{self.getTimestamp()}] {message}"
+        print(toSend)
+        if self._dsMethod is not None:
+            self._dsMethod(toSend)
     
     def logSubsystem(self, subsystem: str, message: str, color: str = "\033[0m") -> None:
-        print(f"{color}[{self.getTimestamp()}] ({subsystem}): {message}\033[0m")
+        toSend = f"[{self.getTimestamp()}] ({subsystem}): {message}"
+        print(f"{color}{toSend}\033[0m")
+        if self._dsMethod is not None:
+            self._dsMethod(toSend)
 
 class TelemetrySubsystem:
     def __init__(self, name: str) -> None:

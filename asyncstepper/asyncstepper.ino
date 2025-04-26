@@ -3,44 +3,35 @@
 
 #define SIM
 
-#define STEPPER1_DIR_PIN 2
-#define STEPPER1_STEP_PIN 3
-#define STEPPER1_DISABLE_PIN 4
-#define STEPPER2_DIR_PIN 5
-#define STEPPER2_STEP_PIN 6
-#define STEPPER2_DISABLE_PIN 7
-#define STEPPER3_DIR_PIN 8
-#define STEPPER3_STEP_PIN 9
-#define STEPPER3_DISABLE_PIN 10
+#define TURRET_DIR_PIN 2
+#define TURRET_STEP_PIN 3
+#define TURRET_DISABLE_PIN 4
+#define ARM_DIR_PIN 5
+#define ARM_STEP_PIN 6
+#define ARM_DISABLE_PIN 7
+#define WRIST_DIR_PIN 8
+#define WRIST_STEP_PIN 9
+#define WRIST_DISABLE_PIN 10
 
 #define STEPS_PER_ROT 200
 
-AsyncStepper stepper1 = AsyncStepper(STEPS_PER_ROT, STEPPER1_DIR_PIN, STEPPER1_STEP_PIN, STEPPER1_DISABLE_PIN);
-#ifdef SIM
-AsyncStepper stepper2 = AsyncStepper(STEPS_PER_ROT, STEPPER2_DIR_PIN, STEPPER2_STEP_PIN, STEPPER2_DISABLE_PIN);
-AsyncStepper stepper3 = AsyncStepper(STEPS_PER_ROT, STEPPER3_DIR_PIN, STEPPER3_STEP_PIN, STEPPER3_DISABLE_PIN);
-#endif
+AsyncStepper turret = AsyncStepper(STEPS_PER_ROT, TURRET_DIR_PIN, TURRET_STEP_PIN, TURRET_DISABLE_PIN);
+AsyncStepper arm = AsyncStepper(STEPS_PER_ROT, ARM_DIR_PIN, ARM_STEP_PIN, ARM_DISABLE_PIN);
+AsyncStepper wrist = AsyncStepper(STEPS_PER_ROT, WRIST_DIR_PIN, WRIST_STEP_PIN, WRIST_DISABLE_PIN);
 
 AsyncStepper *steppers[] = {
-    &stepper1,
-#ifdef SIM
-    &stepper2,
-    &stepper3,
-#else
-    &stepper1,
-    &stepper1
-#endif
+    &turret,
+    &arm,
+    &wrist,
 };
 
 void setup()
 {
-    stepper1.setRPM(120);
-#ifdef SIM
-    stepper2.setRPM(120);
-    stepper3.setRPM(120);
-#endif
+    turret.setRPM(120);
+    arm.setRPM(120);
+    wrist.setRPM(120);
 
-    stepper1.setAccelerationMode(AsyncStepper::CONSTANT);
+    turret.setAccelerationMode(AsyncStepper::CONSTANT);
 
     Serial.begin(115200);
     Serial.setTimeout(100);
@@ -193,12 +184,11 @@ void loop()
     }
 
     update();
-    stepper1.update();
 }
 
 void update()
 {
-    // stepper1.update();
-    // stepper2.update();
-    // stepper3.update();
+    turret.update();
+    arm.update();
+    wrist.update();
 }

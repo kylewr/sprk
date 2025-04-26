@@ -9,4 +9,7 @@ class SimState:
             SimState.IS_SIM = path.exists("../.simulation")
         return SimState.IS_SIM
 
-
+    @staticmethod
+    def getBuildTime():
+        with open("./time.txt", 'r') as f:
+            return f.read().strip()

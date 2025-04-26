@@ -1,4 +1,4 @@
-from Telemetry import Telemetry, TelemetrySubsystem
+from robotBase.Telemetry import Telemetry, TelemetrySubsystem
 
 class Subsystem:
     def __init__(self, name: str) -> None:

@@ -1,53 +1,58 @@
+from robotBase import RobotBase
 from robotBase.RobotState import RobotState
-from robotBase.simulation.SimState import SimState
 
-from Telemetry import Telemetry
 from MecanumDrive import MecanumDrive, MecanumIOMap
 from Arm import Arm, ArmIOMap
 
-class SHARK:
+class SHARK(RobotBase.RobotBase):
     def __init__(self) -> None:
-        self.telemetry = Telemetry()
+        super().__init__()
+
         self.drivetrain = MecanumDrive(MecanumIOMap.getIoPreset())
         self.drivetrain.addTelemetry(self.telemetry)
 
         self.arm = Arm(ArmIOMap.getIoPreset())
         self.arm.addTelemetry(self.telemetry)
 
-        self.autonThread = None
-        self.changeState(RobotState.DISABLED)
-        self.telemetry.info("Robot initialization complete!")
-        if (SimState.isSimulation()):
-            self.telemetry.info("Simulated robot initialization complete!")
-
-    def changeState(self, state: RobotState) -> None:
-        if (state != RobotState.AUTONOMOUS and self.autonThread is not None):
-            # self.autonThread.
-            self.autonThread = None
-
-        self.state = state
-        self.telemetry.logRobotState(state.value)
-
-    # def createAutonomousThread(self, target) -> threading.Thread:
-    #     return threading.Thread(target=target, args=(self,), daemon=True)
+        self.finalizeInit()
 
     def autonomousInit(self):
-        self.changeState(RobotState.AUTONOMOUS)
+        super().autonomousInit()
         # self.autonThread = self.createAutonomousThread(Simple.run)
         # self.autonThread.start()
-    
+
     def teleopInit(self):
-        if (self.state != RobotState.TELEOP):
+        if (super().teleopInit()):
             self.drivetrain.stop()
-            self.changeState(RobotState.TELEOP)
 
     def disabledInit(self):
-        if (self.state != RobotState.DISABLED):
+        if (super().disabledInit()):
             self.drivetrain.stop()
-            self.changeState(RobotState.DISABLED)
     
     def emergencyStop(self):
         self.drivetrain.estop()
         self.arm.estop()
         self.changeState(RobotState.DISABLED)
+
+    def handleTeleop(self, packet: str) -> None:
+        if (self.state != RobotState.TELEOP):
+            return
+        match packet.split(",")[0]:
+            case "s":
+                self.drivetrain.stop()
+            case "jstk":
+                dctrls = packet.replace(";", "").split(",")
+                try:
+                    if dctrls[5] == 1:
+                        self.drivetrain.effectiveTank(int(dctrls[2]), int(dctrls[4]))
+                    else:
+                        self.drivetrain.robotCentric(int(dctrls[1]), int(dctrls[2]), int(dctrls[3]))
+                except ValueError:
+                    self.telemetry.info(f"Invalid joystick input: {packet}")
+            case "btn":
+                dctrls = packet.split(",")
+            case "fc":
+                pass
+            case _:
+                self.telemetry.info(f"Recieved an unknown teleop input: {packet}")
 
