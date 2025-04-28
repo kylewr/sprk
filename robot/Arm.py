@@ -1,25 +1,41 @@
-from robotBase.actuation import VirtualStepper
 from robotBase import Subsystem
+from robotBase.simulation.SimState import SimState
+from robotBase.actuation.VirtualStepper import VirtualStepper
+
+from Constants import Constants
 
 class ArmIOMap:
-    def __init__(self, turretId: int, joint1: int, joint2: int) -> None:
+    def __init__(self, turretId: int, arm: int, wrist: int) -> None:
         self.turretId = turretId
-        self.joint1Id = joint1
-        self.joint2Id = joint2
+        self.armId = arm
+        self.wristId = wrist
         self.turret = None
-        self.joint1 = None
-        self.joint2 = None
+        self.arm = None
+        self.wrist = None
+        self.initSteppers()
     
     def initSteppers(self) -> None:
         self.turret = VirtualStepper(self.turretId)
-        self.joint1 = VirtualStepper(self.joint1Id)
-        self.joint2 = VirtualStepper(self.joint2Id)
+        self.arm = VirtualStepper(self.armId)
+        self.wrist = VirtualStepper(self.wristId)
 
     @staticmethod
     def getIoPreset() -> 'ArmIOMap':
-        return ArmIOMap(0, 1, 2)
+        return ArmIOMap(Constants.SerialMap.TURRET, Constants.SerialMap.ARM, Constants.SerialMap.WRIST)
 
 class Arm(Subsystem.Subsystem):
     def __init__(self, ioMap: ArmIOMap) -> None:
         super().__init__("ARM")
         self.ioMap = ioMap
+        self.serial = None
+
+    def addSerial(self, serial) -> None:
+        self.serial = serial
+        self.ioMap.turret.pass_serial(serial)
+        self.ioMap.arm.pass_serial(serial)
+        self.ioMap.wrist.pass_serial(serial)
+
+if SimState.isSimulation():
+    from robotBase.simulation.SerialSim import SerialSim as Serial
+else:
+    from robotBase.SerialBase import Serial

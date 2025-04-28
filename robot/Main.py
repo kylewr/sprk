@@ -33,7 +33,7 @@ def main():
             robot.telemetry.sendDS("[STATE] DISABLE")
             sleep(0.5)
 
-            robot.telemetry.sendDS(f"[ROBOTINFO] \nRobot Author: Kyle Rush\nBuild Time: {SimState.getBuildTime()}\nRobot Version: v2025.04")
+            robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}")
 
             while True:
                 try:

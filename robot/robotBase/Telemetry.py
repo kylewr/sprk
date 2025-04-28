@@ -35,13 +35,14 @@ class TelemetrySubsystem:
     def __init__(self, name: str) -> None:
         self.name = name
         self.telem = None
-        self.verbose = True
+
+        self.isVerbose = False
     
     def pass_telem(self, telem: Telemetry) -> None:
         self.telem = telem
 
     def info(self, message: str, color: str = "\033[0m") -> None:
-        if self.telem and self.verbose:
+        if self.telem:
             self.telem.logSubsystem(self.name, message, color)
     
     def warn(self, message: str) -> None:
@@ -51,6 +52,9 @@ class TelemetrySubsystem:
         self.info(message, "\033[91m")
 
     def sim(self, message: str) -> None:
-        if SimState.isSimulation() and self.verbose:
+        if SimState.isSimulation():
             self.info(message)
     
+    def verbose(self, message: str) -> None:
+        if self.telem and self.isVerbose:
+            self.info(message)

@@ -2,6 +2,8 @@ from robotBase import Subsystem, IOMap
 from robotBase.actuation.HBridgeMotor import HBridgeMotor, MotorDirection
 from robotBase.simulation.SimState import SimState
 
+from Constants import Constants
+
 class MecanumIOMap(IOMap.GPIOMap):
     def __init__(self, fl: tuple, fr: tuple, bl: tuple, br: tuple) -> None:
         super().__init__()
@@ -44,7 +46,8 @@ class MecanumIOMap(IOMap.GPIOMap):
     
     @staticmethod
     def getIoPreset():
-        return MecanumIOMap((3, 5), (11, 13), (38, 36), (37, 35))
+        # return MecanumIOMap((3, 5), (11, 13), (38, 36), (37, 35))
+        return MecanumIOMap(Constants.GPIOMap.FL, Constants.GPIOMap.FR, Constants.GPIOMap.BL, Constants.GPIOMap.BR)
 
 
 class MecanumDrive(Subsystem.Subsystem):
@@ -57,21 +60,21 @@ class MecanumDrive(Subsystem.Subsystem):
         self.ioMap.setSpeed(1, y - x + r) # FR
         self.ioMap.setSpeed(2, y + x + r) # BL
         self.ioMap.setSpeed(3, y - x - r) # BR
-        self.telemetry.sim(f"ROB CENT - FL: {self.ioMap.modules[0].speed}, FR: {self.ioMap.modules[1].speed}, BL: {self.ioMap.modules[2].speed}, BR: {self.ioMap.modules[3].speed}")
+        self.telemetry.verbose(f"ROB CENT - FL: {self.ioMap.modules[0].speed}, FR: {self.ioMap.modules[1].speed}, BL: {self.ioMap.modules[2].speed}, BR: {self.ioMap.modules[3].speed}")
     
     def effectiveTank(self, left, right) -> None:
         self.ioMap.setSpeed(0, right)
         self.ioMap.setSpeed(1, left)
         self.ioMap.setSpeed(2, left)
         self.ioMap.setSpeed(3, right)
-        self.telemetry.sim(f"TANK - LEFT: {self.ioMap.modules[1].speed}, RIGHT: {self.ioMap.modules[0].speed}")
+        self.telemetry.verbose(f"TANK - LEFT: {self.ioMap.modules[1].speed}, RIGHT: {self.ioMap.modules[0].speed}")
 
     def fieldCentric(self, x, y, r) -> None:
         pass
     
     def stop(self) -> None:
         self.ioMap.stop()
-        self.telemetry.sim("Stopping all motors.")
+        self.telemetry.warn("Stopping all motors.")
 
     def estop(self) -> None:
         super().estop()

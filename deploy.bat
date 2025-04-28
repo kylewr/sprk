@@ -1,6 +1,5 @@
-@echo off
-for /F "usebackq tokens=1,2 delims==" %%i in (`wmic os get LocalDateTime /VALUE 2^>NUL`) do if '.%%i.'=='.LocalDateTime.' set ldt=%%j
-set ldt=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2% %ldt:~8,2%:%ldt:~10,2%:%ldt:~12,6%
-echo %ldt% > ./robot/time.txt
+For /f "tokens=2-4 delims=/ " %%a in ('date /t') do (set mydate=%%a-%%b-%%c)
+For /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a:%%b)
+echo %mydate% %mytime% > ./robot/time.txt
 ssh pi@shark sudo rm -rf /home/pi/robot
 scp -r ./robot pi@shark:/home/pi/robot

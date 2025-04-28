@@ -1,4 +1,4 @@
-from serial import Serial
+import serial
 from threading import Thread
 
 def parse_commands(command, port):
@@ -52,7 +52,7 @@ def respond_worker(port):
         else:
             command += decoded
 
-p = Serial('COM10', 9600, timeout=50)
+p = serial.Serial('COM4', 115200, timeout=50)
 
 write_prompt = lambda: p.write(b'\r\033[36mQuack CMD\033[0m> ')
 printn = lambda t: p.write((f'\n{t}').encode())

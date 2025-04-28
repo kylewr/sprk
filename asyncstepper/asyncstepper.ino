@@ -177,10 +177,10 @@ void loop()
 
         update();
 
-        if (!original.startsWith("l"))
-        {
-            lastCommand = original;
-        }
+        // if (!original.startsWith("l"))
+        // {
+        //     lastCommand = original;
+        // }
     }
 
     update();
