@@ -1,48 +1,57 @@
+from robotBase.AutonomousThread import AutonomousThread
 from time import sleep
 
-def run(robot):
-    robot.drivetrain.stop()
-    sleep(1)
+class Demo(AutonomousThread):
+    def run(self):
+        actions = [
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(1),
 
-    robot.drivetrain.robotCentric(0, 1, 0)
-    robot.drivetrain.telemetry.info("forward")
-    sleep(1)
-    robot.drivetrain.stop()
-    sleep(0.5)
-    robot.drivetrain.robotCentric(0, -1, 0)
-    robot.drivetrain.telemetry.info("backward")
-    sleep(2)
-    robot.drivetrain.stop()
-    sleep(0.5)
-    robot.drivetrain.robotCentric(0, 1, 0)
-    robot.drivetrain.telemetry.info("forward")
-    sleep(1)
+            lambda: self.robot.drivetrain.robotCentric(0, 1, 0),
+            lambda: self.robot.drivetrain.telemetry.info("forward"),
+            lambda: sleep(1),
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(0.5),
+            lambda: self.robot.drivetrain.robotCentric(0, -1, 0),
+            lambda: self.robot.drivetrain.telemetry.info("backward"),
+            lambda: sleep(2),
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(0.5),
+            lambda: self.robot.drivetrain.robotCentric(0, 1, 0),
+            lambda: self.robot.drivetrain.telemetry.info("forward"),
+            lambda: sleep(1),
 
-    robot.drivetrain.stop()
-    sleep(1)
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(1),
 
-    robot.drivetrain.robotCentric(-1, 0, 0)
-    robot.drivetrain.telemetry.info("left")
-    sleep(1)
-    robot.drivetrain.stop()
-    sleep(0.5)
-    robot.drivetrain.robotCentric(1, 0, 0)
-    robot.drivetrain.telemetry.info("right")
-    sleep(2)
-    robot.drivetrain.stop()
-    sleep(0.5)
-    robot.drivetrain.robotCentric(-1, 0, 0)
-    robot.drivetrain.telemetry.info("left")
-    sleep(1)
+            lambda: self.robot.drivetrain.robotCentric(-1, 0, 0),
+            lambda: self.robot.drivetrain.telemetry.info("left"),
+            lambda: sleep(1),
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(0.5),
+            lambda: self.robot.drivetrain.robotCentric(1, 0, 0),
+            lambda: self.robot.drivetrain.telemetry.info("right"),
+            lambda: sleep(2),
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(0.5),
+            lambda: self.robot.drivetrain.robotCentric(-1, 0, 0),
+            lambda: self.robot.drivetrain.telemetry.info("left"),
+            lambda: sleep(1),
 
-    robot.drivetrain.stop()
-    sleep(1)
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(1),
 
-    robot.drivetrain.robotCentric(0, 0, 1)
-    robot.drivetrain.telemetry.info("rotate right")
-    sleep(2)
-    robot.drivetrain.stop()
-    sleep(0.5)
-    robot.drivetrain.robotCentric(0, 0, -1)
-    robot.drivetrain.telemetry.info("rotate left")
-    sleep(2)
+            lambda: self.robot.drivetrain.robotCentric(0, 0, 1),
+            lambda: self.robot.drivetrain.telemetry.info("rotate right"),
+            lambda: sleep(2),
+            lambda: self.robot.drivetrain.stop(),
+            lambda: sleep(0.5),
+            lambda: self.robot.drivetrain.robotCentric(0, 0, -1),
+            lambda: self.robot.drivetrain.telemetry.info("rotate left"),
+            lambda: sleep(2)
+        ]
+        for action in actions:
+            if not self.stopped():
+                action()
+            else:
+                break

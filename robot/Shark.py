@@ -1,3 +1,5 @@
+from time import sleep
+
 from robotBase import RobotBase
 from robotBase.actuation.VirtualStepper import StepperDirection
 from robotBase.simulation.SimState import SimState
@@ -9,6 +11,8 @@ from Constants import Constants
 from Arm import Arm, ArmIOMap
 from MecanumDrive import MecanumDrive, MecanumIOMap
 from Pinchers import Pinchers
+
+from autonomous import DrivetrainTest
 
 class SHARK(RobotBase.RobotBase):
     def __init__(self):
@@ -44,15 +48,24 @@ class SHARK(RobotBase.RobotBase):
         self.finalizeInit()
 
     def autonomousInit(self):
-        super().autonomousInit()
-        # self.autonThread = self.createAutonomousThread(Simple.run)
-        # self.autonThread.start()
+        if (super().autonomousInit()):
+            self.autonThread = DrivetrainTest.DrivetrainTest()
+            self.autonThread.passRobot(self)
+            def endAction():
+                sleep(0.2)
+                self.disabledInit()
+            self.autonThread.withEndAction(endAction)
+            self.autonThread.start()
 
     def teleopInit(self):
         if (super().teleopInit()):
             self.drivetrain.stop()
 
     def disabledInit(self):
+        if (self.autonThread is not None):
+            self.autonThread.stop()
+            self.autonThread = None
+
         if (super().disabledInit()):
             self.drivetrain.stop()
     
@@ -94,5 +107,7 @@ class SHARK(RobotBase.RobotBase):
                     self.arm.ioMap.turret.setAngle(-45)
                 elif button.startswith("rightshoulder;"):
                     self.arm.ioMap.turret.setAngle(45)
+                elif button.startswith("back"):
+                    self.autonomousInit()
             case _:
                 self.telemetry.info(f"Recieved an unknown teleop input: {packet}")

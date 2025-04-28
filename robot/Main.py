@@ -7,16 +7,17 @@ from Shark import SHARK
 
 def main():
     mainSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    mainSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    hostname = 'QuackStation' if SimState.isSimulation() else 'shark.local'
+    hostname = 'QuackStation' if SimState.isSimulation() else '10.8.62.2'
     mainSocket.bind((hostname, 8008))
 
     mainSocket.listen(5)
 
     robot = SHARK()
     try:
-        while True:
-            bigBreak = False
+        robotAlive = True
+        while robotAlive:
             robot.disabledInit()
             print(f'\033[90mAwaiting connection on {mainSocket.getsockname()}...\033[0m')
             conn, addr = mainSocket.accept()
@@ -48,7 +49,7 @@ def main():
                     robot.handleTeleop(message[3:])
 
                 if message.startswith("exit"):
-                    bigBreak = True
+                    robotAlive = False
                     break
                 elif message.startswith("auto"):
                     robot.autonomousInit()
@@ -60,8 +61,7 @@ def main():
             if (robot.state != RobotState.DISABLED):
                 robot.emergencyStop()
             print(f"\033[90mSocket lost connection! {addr}\033[0m")
-            if (bigBreak):
-                break
+        socket.close()
     except KeyboardInterrupt:
         robot.emergencyStop()
 

@@ -27,10 +27,11 @@ class RobotBase:
     #     return threading.Thread(target=target, args=(self,), daemon=True)
 
     def autonomousInit(self):
-        self.changeState(RobotState.AUTONOMOUS)
-        self.telemetry.sendDS(f"[STATE] AUTONOMOUS")
-        # self.autonThread = self.createAutonomousThread(Simple.run)
-        # self.autonThread.start()
+        if (self.state != RobotState.AUTONOMOUS):
+            self.telemetry.sendDS(f"[STATE] AUTONOMOUS")
+            self.changeState(RobotState.AUTONOMOUS)
+            return True
+        return False
     
     def teleopInit(self):
         if (self.state != RobotState.TELEOP):
