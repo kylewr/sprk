@@ -61,7 +61,7 @@ def main():
             if (robot.state != RobotState.DISABLED):
                 robot.emergencyStop()
             print(f"\033[90mSocket lost connection! {addr}\033[0m")
-        socket.close()
+        conn.close()
     except KeyboardInterrupt:
         robot.emergencyStop()
 

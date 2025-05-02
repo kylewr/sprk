@@ -8,14 +8,14 @@ class DrivetrainTest(AutonomousThread.AutonomousThread):
         return (
             lambda: self.robot.drivetrain.telemetry.warn(f"Now testing module {module} FORWARD"),
             lambda: self.robot.drivetrain.ioMap.modules[module].set(MotorDirection.FORWARD),
-            lambda: sleep(1.5),
+            lambda: sleep(.75),
             lambda: self.robot.drivetrain.ioMap.modules[module].stop(),
-            lambda: sleep(1),
+            lambda: sleep(.75),
             lambda: self.robot.drivetrain.telemetry.info(f"Now testing module {module} BACKWARD"),
             lambda: self.robot.drivetrain.ioMap.modules[module].set(MotorDirection.BACKWARD),
-            lambda: sleep(1.5),
+            lambda: sleep(.75),
             lambda: self.robot.drivetrain.ioMap.modules[module].stop(),
-            lambda: sleep(2.5),
+            lambda: sleep(1.5),
         )
 
     def run(self):

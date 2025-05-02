@@ -107,7 +107,5 @@ class SHARK(RobotBase.RobotBase):
                     self.arm.ioMap.turret.setAngle(-45)
                 elif button.startswith("rightshoulder;"):
                     self.arm.ioMap.turret.setAngle(45)
-                elif button.startswith("back"):
-                    self.autonomousInit()
             case _:
                 self.telemetry.info(f"Recieved an unknown teleop input: {packet}")
