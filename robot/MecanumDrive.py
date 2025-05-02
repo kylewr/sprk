@@ -46,9 +46,8 @@ class MecanumIOMap(IOMap.GPIOMap):
     
     @staticmethod
     def getIoPreset():
-        # return MecanumIOMap((3, 5), (11, 13), (38, 36), (37, 35))
         ioMap = MecanumIOMap(Constants.GPIOMap.FL, Constants.GPIOMap.FR, Constants.GPIOMap.BL, Constants.GPIOMap.BR)
-        ioMap.setInverts((False, False, False, True))
+        ioMap.setInverts((False, False, True, True))
         return ioMap
 
 
