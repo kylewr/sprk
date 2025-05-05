@@ -52,29 +52,29 @@ class MecanumIOMap(IOMap.GPIOMap):
 
 
 class MecanumDrive(Subsystem.Subsystem):
-    def __init__(self, io: MecanumIOMap):
+    def __init__(self, ioMap: MecanumIOMap):
         super().__init__("DRIVETRAIN")
-        self.ioMap = io
+        self.io = ioMap
 
     def robotCentric(self, x, y, r) -> None:
-        self.ioMap.setSpeed(0, y + r - x) # FL
-        self.ioMap.setSpeed(1, y - r + x) # FR
-        self.ioMap.setSpeed(2, y + r + x) # BL
-        self.ioMap.setSpeed(3, y - r - x) # BR
-        self.telemetry.verbose(f"ROB CENT - FL: {self.ioMap.modules[0].speed}, FR: {self.ioMap.modules[1].speed}, BL: {self.ioMap.modules[2].speed}, BR: {self.ioMap.modules[3].speed}")
+        self.io.setSpeed(0, y + r - x) # FL
+        self.io.setSpeed(1, y - r + x) # FR
+        self.io.setSpeed(2, y + r + x) # BL
+        self.io.setSpeed(3, y - r - x) # BR
+        self.telemetry.verbose(f"ROB CENT - FL: {self.io.modules[0].speed}, FR: {self.io.modules[1].speed}, BL: {self.io.modules[2].speed}, BR: {self.io.modules[3].speed}")
     
     def effectiveTank(self, left, right) -> None:
-        self.ioMap.setSpeed(0, left)
-        self.ioMap.setSpeed(1, right)
-        self.ioMap.setSpeed(2, left)
-        self.ioMap.setSpeed(3, right)
-        self.telemetry.verbose(f"TANK - LEFT: {self.ioMap.modules[1].speed}, RIGHT: {self.ioMap.modules[0].speed}")
+        self.io.setSpeed(0, left)
+        self.io.setSpeed(1, right)
+        self.io.setSpeed(2, left)
+        self.io.setSpeed(3, right)
+        self.telemetry.verbose(f"TANK - LEFT: {self.io.modules[1].speed}, RIGHT: {self.io.modules[0].speed}")
 
     def fieldCentric(self, x, y, r) -> None:
         pass
     
     def stop(self) -> None:
-        self.ioMap.stop()
+        self.io.stop()
         self.telemetry.warn("Stopping all motors.")
 
     def estop(self) -> None:
@@ -83,6 +83,5 @@ class MecanumDrive(Subsystem.Subsystem):
 
 if SimState.isSimulation():
     from robotBase.simulation.GPIOSim import GPIOSim as gpio
-    gpio.sim_setLogging(False)
 else:
     import RPi.GPIO as gpio # type: ignore

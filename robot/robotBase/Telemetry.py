@@ -25,6 +25,18 @@ class Telemetry:
         if self._dsMethod is not None:
             self._dsMethod(toSend)
     
+    def warn(self, message: str) -> None:
+        toSend = f"\033[93m[{self.getTimestamp()}] {message}\033[0m"
+        print(toSend)
+        if self._dsMethod is not None:
+            self._dsMethod(toSend)
+    
+    def err(self, message: str) -> None:
+        toSend = f"\033[91m[{self.getTimestamp()}] {message}\033[0m"
+        print(toSend)
+        if self._dsMethod is not None:
+            self._dsMethod(toSend)
+    
     def logSubsystem(self, subsystem: str, message: str, color: str = "\033[0m") -> None:
         toSend = f"[{self.getTimestamp()}] ({subsystem}): {message}"
         print(f"{color}{toSend}\033[0m")

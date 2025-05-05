@@ -23,11 +23,18 @@ class SHARK(RobotBase.RobotBase):
             self.serial.addTelemetry(self.telemetry)
             self.serial.open()
         except Exception as e:
-            self.telemetry.info(f"\033[91mFailed to open serial port: {e}")
-            self.telemetry.info("Falling back to simulation mode.\033[0m")
+            self.telemetry.err(f"Failed to open serial port: {e}")
+            self.telemetry.err("Falling back to simulation mode.")
             from robotBase.simulation.SerialSim import SerialSim as SerialSim
             self.serial = SerialSim(Constants.SERIAL_PORT, Constants.BAUD_RATE)
             self.serial.addTelemetry(self.telemetry)
+
+        if SimState.isSimulation():
+            from robotBase.simulation.GPIOSim import GPIOSim
+            GPIOSim.addTelemetry(self.telemetry)
+            GPIOSim.telemetry.isVerbose = False
+
+            self.serial.telemetry.isVerbose = True
 
         self.drivetrain = MecanumDrive(MecanumIOMap.getIoPreset())
         self.drivetrain.addTelemetry(self.telemetry)
@@ -36,14 +43,10 @@ class SHARK(RobotBase.RobotBase):
         self.arm.addTelemetry(self.telemetry)
         self.arm.addSerial(self.serial)
 
-        self.pinchers = Pinchers()
+        self.pinchers = Pinchers(Constants.GPIOMap.SERVO)
         self.pinchers.addTelemetry(self.telemetry)
 
         self.isStopped = False
-
-        if SimState.isSimulation():
-            self.serial.telemetry.isVerbose = True
-            # self.drivetrain.telemetry.isVerbose = True
 
         self.finalizeInit()
 
@@ -68,6 +71,8 @@ class SHARK(RobotBase.RobotBase):
 
         if (super().disabledInit()):
             self.drivetrain.stop()
+            self.arm.stop()
+            self.pinchers.stop()
     
     def emergencyStop(self):
         self.drivetrain.estop()
@@ -96,16 +101,16 @@ class SHARK(RobotBase.RobotBase):
                 button = packet.split(",")[1]
                 # self.telemetry.info(f"Button pressed: {button}")
                 if button.startswith("x;"):
-                    self.arm.ioMap.turret.rotateContinuous(StepperDirection.CCW)
+                    self.arm.io.turret.rotateContinuous(StepperDirection.CCW)
                 elif button.startswith("b;"):
-                    self.arm.ioMap.turret.rotateContinuous(StepperDirection.CW)
+                    self.arm.io.turret.rotateContinuous(StepperDirection.CW)
                 elif button.startswith("a;"):
-                    self.arm.ioMap.turret.stop()
+                    self.arm.io.turret.stop()
                 elif button.startswith("y;"):
                     self.drivetrain.telemetry.isVerbose = not self.drivetrain.telemetry.isVerbose
                 elif button.startswith("leftshoulder;"):
-                    self.arm.ioMap.turret.setAngle(-45)
+                    self.arm.io.turret.setAngle(-45)
                 elif button.startswith("rightshoulder;"):
-                    self.arm.ioMap.turret.setAngle(45)
+                    self.arm.io.turret.setAngle(45)
             case _:
                 self.telemetry.info(f"Recieved an unknown teleop input: {packet}")

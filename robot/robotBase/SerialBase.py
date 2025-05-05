@@ -57,11 +57,13 @@ class SerialBase:
     
     def write(self, data):
         if (self.isInMultiCommand):
-            self.multiCommand += data
             if data == '\n':
-                data = self.multiCommand
+                data = f";{self.multiCommand[:-1]}"
                 self.multiCommand = ""
                 self.isInMultiCommand = False
+            else:
+                self.multiCommand += f"{data}."
+                return
         self.port.write(data.encode())
         self.telemetry.verbose(f"Sent: {data}")
     

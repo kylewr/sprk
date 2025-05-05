@@ -15,19 +15,21 @@ class SerialSim:
         self.telemetry.info("Telemetry added.")
 
     def open(self):
-        self.telemetry.sim(f"Opening simulation serial port {self.port} at {self.baudrate} baud.")
+        self.telemetry.verbose(f"Opening serial port {self.port} at {self.baudrate} baud.")
 
     def close(self):
-        self.telemetry.sim(f"Closing simulation serial port {self.port}.")
+        self.telemetry.warn(f"Closing serial port {self.port}.")
     
     def write(self, data):
         if (self.isInMultiCommand):
-            self.multiCommand += data
             if data == '\n':
-                data = self.multiCommand
+                data = f";{self.multiCommand[:-1]}"
                 self.multiCommand = ""
                 self.isInMultiCommand = False
-        self.telemetry.sim(f"Write: {data}")
+            else:
+                self.multiCommand += f"{data}."
+                return
+        self.telemetry.verbose(f"Sent: {data}")
     
     def startMultiCommand(self):
         self.isInMultiCommand = True

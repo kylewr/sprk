@@ -26,14 +26,22 @@ class ArmIOMap:
 class Arm(Subsystem.Subsystem):
     def __init__(self, ioMap: ArmIOMap) -> None:
         super().__init__("ARM")
-        self.ioMap = ioMap
-        self.serial = None
+        self.io = ioMap
+        self.serial: Serial = None
 
     def addSerial(self, serial) -> None:
         self.serial = serial
-        self.ioMap.turret.pass_serial(serial)
-        self.ioMap.arm.pass_serial(serial)
-        self.ioMap.wrist.pass_serial(serial)
+        self.io.turret.pass_serial(serial)
+        self.io.arm.pass_serial(serial)
+        self.io.wrist.pass_serial(serial)
+    
+    def stop(self) -> None:
+        self.serial.startMultiCommand()
+        self.io.turret.stop()
+        self.io.arm.stop()
+        self.io.wrist.stop()
+        self.serial.write("\n")
+        self.telemetry.warn("Stopping all motors.")
 
 if SimState.isSimulation():
     from robotBase.simulation.SerialSim import SerialSim as Serial
