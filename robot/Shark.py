@@ -3,7 +3,7 @@ from time import sleep
 from robotBase import RobotBase
 from robotBase.actuation.VirtualStepper import StepperDirection
 from robotBase.simulation.SimState import SimState
-from robotBase.RobotState import RobotState
+from robotBase.RobotEnums import RobotState, JoystickButton
 from robotBase.SerialBase import SerialBase as Serial
 
 from Constants import Constants
@@ -46,7 +46,12 @@ class SHARK(RobotBase.RobotBase):
         self.pinchers = Pinchers(Constants.GPIOMap.SERVO)
         self.pinchers.addTelemetry(self.telemetry)
 
-        self.isStopped = False
+        if SimState.isSimulation():
+            self.arm.telemetry.isVerbose = True
+            self.pinchers.telemetry.isVerbose = True
+
+        self.registerJoystick(self._joystickFunc)
+        self._loadButtons()
 
         self.finalizeInit()
 
@@ -80,37 +85,19 @@ class SHARK(RobotBase.RobotBase):
         self.pinchers.estop()
         self.changeState(RobotState.DISABLED)
 
-    def handleTeleop(self, packet: str):
-        if (self.state != RobotState.TELEOP):
-            return
-        match packet.split(",")[0]:
-            case "jstk":
-                if self.isStopped:
-                    self.drivetrain.stop()
-                    return
+    def _joystickFunc(self, dctrls: tuple):
+        try:
+            if dctrls[6] == '1':
+                self.drivetrain.effectiveTank(int(dctrls[2]), int(dctrls[4]))
+            else:
+                self.drivetrain.robotCentric(int(dctrls[1]), int(dctrls[2]), int(dctrls[3]))
+        except ValueError:
+            self.telemetry.info(f"Invalid joystick input: {dctrls}")
 
-                dctrls = packet.replace(";", "").replace("\n", "").split(",")
-                try:
-                    if dctrls[6] == '1':
-                        self.drivetrain.effectiveTank(int(dctrls[2]), int(dctrls[4]))
-                    else:
-                        self.drivetrain.robotCentric(int(dctrls[1]), int(dctrls[2]), int(dctrls[3]))
-                except ValueError:
-                    self.telemetry.info(f"Invalid joystick input: {packet}")
-            case "btn":
-                button = packet.split(",")[1]
-                # self.telemetry.info(f"Button pressed: {button}")
-                if button.startswith("x;"):
-                    self.arm.io.turret.rotateContinuous(StepperDirection.CCW)
-                elif button.startswith("b;"):
-                    self.arm.io.turret.rotateContinuous(StepperDirection.CW)
-                elif button.startswith("a;"):
-                    self.arm.io.turret.stop()
-                elif button.startswith("y;"):
-                    self.drivetrain.telemetry.isVerbose = not self.drivetrain.telemetry.isVerbose
-                elif button.startswith("leftshoulder;"):
-                    self.arm.io.turret.setAngle(-45)
-                elif button.startswith("rightshoulder;"):
-                    self.arm.io.turret.setAngle(45)
-            case _:
-                self.telemetry.info(f"Recieved an unknown teleop input: {packet}")
+    def _loadButtons(self):
+        self.registerButton(JoystickButton.A, self.pinchers.open)
+        self.registerButton(JoystickButton._A, self.pinchers.close)
+
+        self.registerButton(JoystickButton.B, self.arm.stow)
+
+        self.registerButton(JoystickButton.Y, self.drivetrain.telemetry.toggleVerbose)

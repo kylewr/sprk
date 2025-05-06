@@ -1,6 +1,6 @@
 import datetime
 from robotBase.simulation.SimState import SimState
-from robotBase.RobotState import RobotState
+from robotBase.RobotEnums import RobotState
 
 class Telemetry:
     def __init__(self) -> None:
@@ -70,3 +70,7 @@ class TelemetrySubsystem:
     def verbose(self, message: str) -> None:
         if self.telem and self.isVerbose:
             self.info(message)
+    
+    def toggleVerbose(self) -> None:
+        self.isVerbose = not self.isVerbose
+        self.verbose("Verbose enabled.")

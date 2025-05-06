@@ -1,7 +1,7 @@
 import socket
 from time import sleep
 
-from robotBase.RobotState import RobotState
+from robotBase.RobotEnums import RobotState
 from robotBase.simulation.SimState import SimState
 from Shark import SHARK
 
@@ -44,7 +44,7 @@ def main():
                     break
                 if not data:
                     break
-                message = data.decode('utf-8').lower()
+                message = data.decode('utf-8')
                 if message.startswith("te-"): # teleop packet
                     robot.handleTeleop(message[3:])
 

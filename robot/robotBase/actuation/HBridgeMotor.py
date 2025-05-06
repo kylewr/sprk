@@ -34,10 +34,11 @@ class HBridgeMotor:
             gpio.output(self.pin_low, gpio.LOW)
             gpio.output(self.pin_high, gpio.LOW)
         else:
-            self.speed = direction.value * (1 if not self.inverted else -1)
+            self.speed = direction.value
+            invertAppliedSpeed = self.speed * (1 if not self.inverted else -1)
             # Set the appropriate pin based on the direction
-            gpio.output(self.pin_low, gpio.HIGH if self.speed < 0 else gpio.LOW)
-            gpio.output(self.pin_high, gpio.HIGH if self.speed > 0 else gpio.LOW)
+            gpio.output(self.pin_low, gpio.HIGH if invertAppliedSpeed < 0 else gpio.LOW)
+            gpio.output(self.pin_high, gpio.HIGH if invertAppliedSpeed > 0 else gpio.LOW)
     
     def stop(self) -> None:
         self.set(MotorDirection.STOP)
