@@ -1,5 +1,7 @@
 from enum import Enum
 
+from robotBase.simulation.SimState import SimState
+
 class StepperDirection(Enum):
     CW = 1  # Clockwise
     CCW = -1  # Counter-clockwise
@@ -12,7 +14,7 @@ class VirtualStepper:
     def __init__(self, id: int) -> None:
         self.id = id
 
-        self.serial = None
+        self.serial: Serial = None
 
         self.enabled = False
         self.angle = 0.0
@@ -25,7 +27,7 @@ class VirtualStepper:
     
     def _init(self) -> None:
         if self.serial is None:
-            raise Exception("Serial port not set!")
+            raise Exception("Serial not set!")
 
     def setEnabled(self, enabled: bool) -> None:
         self.enabled = enabled
@@ -50,3 +52,8 @@ class VirtualStepper:
     def stop(self) -> None:
         self.continuous = False
         self.serial.write(f"{self.id}s")
+
+if SimState.isSimulation():
+    from robotBase.simulation.SerialSim import SerialSim as Serial
+else:
+    from robotBase.SerialBase import Serial

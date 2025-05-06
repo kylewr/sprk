@@ -75,3 +75,22 @@ class JoystickButton(Enum):
     @classmethod
     def getAll(cls) -> list[str]:
         return cls._NAMES.value.values()
+
+class JoystickAxis(Enum):
+    LEFT_X = 0
+    LEFT_Y = 1
+    RIGHT_X = 2
+    RIGHT_Y = 3
+    LEFT_TRIGGER = 4
+    RIGHT_TRIGGER = 5
+
+    @classmethod
+    def convertFromList(cls, axis: list[int]) -> dict['JoystickAxis', float]:
+        return {
+            JoystickAxis[cls.LEFT_X.name]: int(axis[cls.LEFT_X.value]),
+            JoystickAxis[cls.LEFT_Y.name]: int(axis[cls.LEFT_Y.value]),
+            JoystickAxis[cls.RIGHT_X.name]: int(axis[cls.RIGHT_X.value]),
+            JoystickAxis[cls.RIGHT_Y.name]: int(axis[cls.RIGHT_Y.value]),
+            JoystickAxis[cls.LEFT_TRIGGER.name]: int(axis[cls.LEFT_TRIGGER.value]),
+            JoystickAxis[cls.RIGHT_TRIGGER.name]: int(axis[cls.RIGHT_TRIGGER.value]),
+        }

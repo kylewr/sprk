@@ -15,3 +15,11 @@ class Constants:
         TURRET = 0
         ARM = 1
         WRIST = 2
+    
+    class ActuationConstants:
+        PINCHER_OPEN = 0
+        PINCHER_CLOSE = 180
+        PINCHER_MIN = 0
+        PINCHER_MAX = 180
+
+        POSITION_STOW = (0, 0, 0)

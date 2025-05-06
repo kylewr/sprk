@@ -3,7 +3,7 @@ from time import sleep
 from robotBase import RobotBase
 from robotBase.actuation.VirtualStepper import StepperDirection
 from robotBase.simulation.SimState import SimState
-from robotBase.RobotEnums import RobotState, JoystickButton
+from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.SerialBase import SerialBase as Serial
 
 from Constants import Constants
@@ -50,7 +50,7 @@ class SHARK(RobotBase.RobotBase):
             self.arm.telemetry.isVerbose = True
             self.pinchers.telemetry.isVerbose = True
 
-        self.registerJoystick(self._joystickFunc)
+        self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
 
         self.finalizeInit()
@@ -85,19 +85,13 @@ class SHARK(RobotBase.RobotBase):
         self.pinchers.estop()
         self.changeState(RobotState.DISABLED)
 
-    def _joystickFunc(self, dctrls: tuple):
-        try:
-            if dctrls[6] == '1':
-                self.drivetrain.effectiveTank(int(dctrls[2]), int(dctrls[4]))
-            else:
-                self.drivetrain.robotCentric(int(dctrls[1]), int(dctrls[2]), int(dctrls[3]))
-        except ValueError:
-            self.telemetry.info(f"Invalid joystick input: {dctrls}")
+    def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
+        self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_TRIGGER] - jctrls[JoystickAxis.LEFT_TRIGGER])
 
     def _loadButtons(self):
         self.registerButton(JoystickButton.A, self.pinchers.open)
         self.registerButton(JoystickButton._A, self.pinchers.close)
 
-        self.registerButton(JoystickButton.B, self.arm.stow)
+        self.registerButton(JoystickButton.RIGHTSHOULDER, self.arm.stow)
 
-        self.registerButton(JoystickButton.Y, self.drivetrain.telemetry.toggleVerbose)
+        self.registerButton(JoystickButton._BACK, self.drivetrain.telemetry.toggleVerbose)

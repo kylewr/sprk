@@ -35,7 +35,7 @@ class MecanumIOMap(IOMap.GPIOMap):
         direction = MotorDirection.FORWARD if speed > 0 else MotorDirection.BACKWARD if speed < 0 else MotorDirection.STOP
         self.modules[module].set(direction)
 
-    def setInverts(self, inverts: list) -> None:
+    def setInverts(self, inverts: tuple[bool, bool, bool, bool]) -> None:
         [self.modules[i].setInverted(inverts[i]) for i in range(4)] # Set the inverts for each module
 
     def stopMod(self, module: int) -> None:

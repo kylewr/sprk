@@ -32,7 +32,7 @@ def main():
             print(f'\033[92mConnected to controller. {addr}\033[0m')
 
             robot.telemetry.sendDS("[STATE] DISABLE")
-            sleep(0.5)
+            sleep(0.2)
 
             robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}")
 

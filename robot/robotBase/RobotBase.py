@@ -1,5 +1,5 @@
 from robotBase.Telemetry import Telemetry
-from robotBase.RobotEnums import RobotState, JoystickButton
+from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.simulation.SimState import SimState
 
 class RobotBase:
@@ -58,7 +58,11 @@ class RobotBase:
         match packet.split(",")[0]:
             case "jstk":
                 dctrls = packet.replace(';', '').replace('\n', '').split(',')
-                self.teleopInstructions["joystick"](dctrls)
+                try:
+                    self.teleopInstructions["joystick"](JoystickAxis.convertFromList(dctrls[1:]))
+                except ValueError:
+                    self.telemetry.warn(f"Failed to decode joystick axies: {packet}")
+                    return
             case "btn":
                 name = packet.replace(';', '').replace('\n', '').split(",")[1].upper()
                 try:
@@ -74,5 +78,5 @@ class RobotBase:
     def registerButton(self, button: JoystickButton, func) -> None:
         self.teleopInstructions[button] = func
     
-    def registerJoystick(self, func) -> None:
+    def registerJoystickCallback(self, func) -> None:
         self.teleopInstructions["joystick"] = func

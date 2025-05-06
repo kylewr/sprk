@@ -36,12 +36,15 @@ class Arm(Subsystem.Subsystem):
         self.io.wrist.pass_serial(serial)
     
     def stow(self) -> None:
-        self.serial.startMultiCommand()
-        self.io.turret.setAngle(0)
-        self.io.arm.setAngle(0)
-        self.io.wrist.setAngle(0)
-        self.serial.write("\n")
+        self.setAll(Constants.ActuationConstants.POSITION_STOW)
         self.telemetry.verbose("POSITION - STOW")
+
+    def setAll(self, angles: tuple[float, float, float]) -> None:
+        self.serial.startMultiCommand()
+        self.io.turret.setAngle(angles[0])
+        self.io.arm.setAngle(angles[1])
+        self.io.wrist.setAngle(angles[2])
+        self.serial.write("\n")
 
     def stop(self) -> None:
         self.serial.startMultiCommand()
