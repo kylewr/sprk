@@ -16,17 +16,25 @@ class JoystickButton(Enum):
     START = 7
     LEFTTHUMB = 8
     RIGHTTHUMB = 9
+    DPADUP = 10
+    DPADDOWN = 11
+    DPADLEFT = 12
+    DPADRIGHT = 13
 
-    _A = 10
-    _B = 11
-    _X = 12
-    _Y = 13
-    _LEFTSHOULDER = 14
-    _RIGHTSHOULDER = 15
-    _BACK = 16
-    _START = 17
-    _LEFTTHUMB = 18
-    _RIGHTTHUMB = 19
+    _A = 14
+    _B = 15
+    _X = 16
+    _Y = 17
+    _LEFTSHOULDER = 18
+    _RIGHTSHOULDER = 19
+    _BACK = 20
+    _START = 21
+    _LEFTTHUMB = 22
+    _RIGHTTHUMB = 23
+    _DPADUP = 24
+    _DPADDOWN = 25
+    _DPADLEFT = 26
+    _DPADRIGHT = 27
 
     _NAMES = {
         A: "A",
@@ -39,6 +47,10 @@ class JoystickButton(Enum):
         START: "START",
         LEFTTHUMB: "LEFTTHUMB",
         RIGHTTHUMB: "RIGHTHUMB",
+        DPADUP: "DPADUP",
+        DPADDOWN: "DPADDOWN",
+        DPADLEFT: "DPADLEFT",
+        DPADRIGHT: "DPADRIGHT",
         _A: "-A",
         _B: "-B",
         _X: "-X",
@@ -49,6 +61,10 @@ class JoystickButton(Enum):
         _START: "-START",
         _LEFTTHUMB: "-LEFTTHUMB",
         _RIGHTTHUMB: "-RIGHTTHUMB",
+        _DPADUP: "-DPADUP",
+        _DPADDOWN: "-DPADDOWN",
+        _DPADLEFT: "-DPADLEFT",
+        _DPADRIGHT: "-DPADRIGHT",
     }
 
     _RELEASE_MAP = {
@@ -62,6 +78,10 @@ class JoystickButton(Enum):
         START: _START,
         LEFTTHUMB: _LEFTTHUMB,
         RIGHTTHUMB: _RIGHTTHUMB,
+        DPADUP: _DPADUP,
+        DPADDOWN: _DPADDOWN,
+        DPADLEFT: _DPADLEFT,
+        DPADRIGHT: _DPADRIGHT,
     }
 
     @classmethod

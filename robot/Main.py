@@ -34,7 +34,7 @@ def main():
             robot.telemetry.sendDS("[STATE] DISABLE")
             sleep(0.2)
 
-            robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}")
+            robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}[AUTONS]{robot.getAutonsAsCSV()}")
 
             while True:
                 try:
@@ -47,6 +47,11 @@ def main():
                 message = data.decode('utf-8')
                 if message.startswith("te-"): # teleop packet
                     robot.handleTeleop(message[3:])
+                elif message.startswith("init"):
+                    robot.telemetry.success("Recieved Driver Station info: " + message[5:])
+                elif message.startswith("se-auto,"):
+                    robot.selectAuton(message[8:])
+                    
 
                 if message.startswith("exit"):
                     robotAlive = False

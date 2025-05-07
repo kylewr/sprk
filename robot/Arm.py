@@ -29,7 +29,7 @@ class Arm(Subsystem.Subsystem):
         self.io = ioMap
         self.serial: Serial = None
 
-    def addSerial(self, serial) -> None:
+    def addSerial(self, serial: 'Serial') -> None:
         self.serial = serial
         self.io.turret.pass_serial(serial)
         self.io.arm.pass_serial(serial)

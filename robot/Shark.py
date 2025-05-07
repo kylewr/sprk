@@ -3,6 +3,7 @@ from time import sleep
 from robotBase import RobotBase
 from robotBase.actuation.VirtualStepper import StepperDirection
 from robotBase.simulation.SimState import SimState
+from robotBase.AutonomousThread import AutonomousThread
 from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.SerialBase import SerialBase as Serial
 
@@ -12,21 +13,21 @@ from Arm import Arm, ArmIOMap
 from MecanumDrive import MecanumDrive, MecanumIOMap
 from Pinchers import Pinchers
 
-from autonomous import DrivetrainTest
+import autonomous as Autonomous
 
 class SHARK(RobotBase.RobotBase):
     def __init__(self):
         super().__init__()
 
         try:
-            self.serial = Serial(Constants.SERIAL_PORT, Constants.BAUD_RATE)
+            self.serial = Serial(Constants.SIM_SERIAL_PORT if SimState.isSimulation() else Constants.SERIAL_PORT, Constants.BAUD_RATE)
             self.serial.addTelemetry(self.telemetry)
             self.serial.open()
         except Exception as e:
             self.telemetry.err(f"Failed to open serial port: {e}")
             self.telemetry.err("Falling back to simulation mode.")
             from robotBase.simulation.SerialSim import SerialSim as SerialSim
-            self.serial = SerialSim(Constants.SERIAL_PORT, Constants.BAUD_RATE)
+            self.serial = SerialSim(Constants.SIM_SERIAL_PORT, Constants.BAUD_RATE)
             self.serial.addTelemetry(self.telemetry)
 
         if SimState.isSimulation():
@@ -50,29 +51,48 @@ class SHARK(RobotBase.RobotBase):
             self.arm.telemetry.isVerbose = True
             self.pinchers.telemetry.isVerbose = True
 
+        self._autonMap: dict[str, AutonomousThread] = {
+            "Drivetrain Self-Test": Autonomous.DrivetrainTest,
+            "Drivetrain Demo": Autonomous.Demo,
+        }
+
+        self.telemetry.err(self.getAutonsAsCSV())
+
         self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
 
         self.finalizeInit()
+    
+    def selectAuton(self, auton: str):
+        if (self.state == RobotState.AUTONOMOUS):
+            return
+        
+        auton = auton.replace("\n", "")
+        if auton in self._autonMap.keys():
+            self._selectedAutonName = auton
+            self.telemetry.success(f"Selected autonomous: {self._selectedAutonName}")
+        else:
+            self.telemetry.err(f"Invalid autonomous selected: {auton}")
 
     def autonomousInit(self):
         if (super().autonomousInit()):
-            self.autonThread = DrivetrainTest.DrivetrainTest()
-            self.autonThread.passRobot(self)
             def endAction():
                 sleep(0.2)
                 self.disabledInit()
-            self.autonThread.withEndAction(endAction)
-            self.autonThread.start()
+
+            self._selectedAutonThread = self._autonMap[self._selectedAutonName]()
+            self._selectedAutonThread.passRobot(self)
+            self._selectedAutonThread.withEndAction(endAction)
+            self._selectedAutonThread.start()
 
     def teleopInit(self):
         if (super().teleopInit()):
             self.drivetrain.stop()
 
     def disabledInit(self):
-        if (self.autonThread is not None):
-            self.autonThread.stop()
-            self.autonThread = None
+        if (self._selectedAutonThread is not None):
+            self._selectedAutonThread.stop()
+            self._selectedAutonThread = None
 
         if (super().disabledInit()):
             self.drivetrain.stop()
@@ -86,12 +106,18 @@ class SHARK(RobotBase.RobotBase):
         self.changeState(RobotState.DISABLED)
 
     def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
-        self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_TRIGGER] - jctrls[JoystickAxis.LEFT_TRIGGER])
+        self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_X])
 
     def _loadButtons(self):
         self.registerButton(JoystickButton.A, self.pinchers.open)
         self.registerButton(JoystickButton._A, self.pinchers.close)
 
-        self.registerButton(JoystickButton.RIGHTSHOULDER, self.arm.stow)
+        self.registerButton(JoystickButton.B, self.arm.stow)
 
         self.registerButton(JoystickButton._BACK, self.drivetrain.telemetry.toggleVerbose)
+
+        self.registerButton(JoystickButton.LEFTSHOULDER, lambda: self.arm.io.turret.rotateContinuous(StepperDirection.CW))
+        self.registerButton(JoystickButton.RIGHTSHOULDER, lambda: self.arm.io.turret.rotateContinuous(StepperDirection.CCW))
+
+        self.registerButton(JoystickButton._LEFTSHOULDER, self.arm.io.turret.stop)
+        self.registerButton(JoystickButton._RIGHTSHOULDER, self.arm.io.turret.stop)

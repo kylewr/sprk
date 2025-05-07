@@ -1,24 +1,29 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Shark import SHARK
+
 from robotBase import AutonomousThread
 from robotBase.actuation.HBridgeMotor import MotorDirection
-
-from time import sleep
 
 class DrivetrainTest(AutonomousThread.AutonomousThread):
     def getModuleSpeedAction(self, module: int):
         return (
-            lambda: self.robot.drivetrain.telemetry.warn(f"Now testing module {module} FORWARD"),
+            lambda: self.robot.drivetrain.telemetry.success(f"Now testing module {module} FORWARD"),
             lambda: self.robot.drivetrain.io.modules[module].set(MotorDirection.FORWARD),
-            lambda: sleep(.75),
+            self.sleep(.75),
             lambda: self.robot.drivetrain.io.modules[module].stop(),
-            lambda: sleep(.75),
+            self.sleep(.75),
             lambda: self.robot.drivetrain.telemetry.info(f"Now testing module {module} BACKWARD"),
             lambda: self.robot.drivetrain.io.modules[module].set(MotorDirection.BACKWARD),
-            lambda: sleep(.75),
+            self.sleep(.75),
             lambda: self.robot.drivetrain.io.modules[module].stop(),
-            lambda: sleep(1.5),
+            self.sleep(1.5),
         )
 
     def run(self):
+        self.robot: 'SHARK' = self.robot # define typing for SHARK
+
         actions = [
             *self.getModuleSpeedAction(0),
             *self.getModuleSpeedAction(1),
@@ -26,7 +31,7 @@ class DrivetrainTest(AutonomousThread.AutonomousThread):
             *self.getModuleSpeedAction(3),
             lambda: self.robot.drivetrain.io.stop(),
             lambda: self.robot.drivetrain.telemetry.warn("Drivetrain test complete"),
-            lambda: sleep(0.2),
+            self.sleep(0.2),
             self.endAction,
         ]
         for action in actions:

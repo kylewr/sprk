@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from robotBase.AutonomousThread import AutonomousThread
+
 from robotBase.Telemetry import Telemetry
 from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.simulation.SimState import SimState
@@ -7,7 +12,10 @@ class RobotBase:
         self.telemetry = Telemetry()
         self.telemetry.info("RobotBase initialized.")
         self.state = RobotState.DISABLED
-        self.autonThread = None
+
+        self._autonMap: dict[str, AutonomousThread] = {}
+        self._selectedAutonName: str = None
+        self._selectedAutonThread: AutonomousThread = None
 
         self.teleopInstructions: dict[JoystickButton, function] = {}
     
@@ -18,20 +26,24 @@ class RobotBase:
             self.telemetry.info("Simulated robot initialization complete!")
 
     def changeState(self, state: RobotState) -> None:
-        if (state != RobotState.AUTONOMOUS and self.autonThread is not None):
+        if (state != RobotState.AUTONOMOUS and self._selectedAutonThread is not None):
             # self.autonThread.
-            self.autonThread = None
+            self._selectedAutonThread = None
 
         self.state = state
         self.telemetry.logRobotState(state.value)
 
-    # def createAutonomousThread(self, target) -> threading.Thread:
-    #     return threading.Thread(target=target, args=(self,), daemon=True)
+    def getAutonsAsCSV(self):
+        return ','.join(self._autonMap.keys())
 
     def autonomousInit(self):
         if (self.state != RobotState.AUTONOMOUS):
+            if self._selectedAutonName is None:
+                self.telemetry.err("Failed to enable: No autonomous selected!")
+                return
             self.telemetry.sendDS(f"[STATE] AUTONOMOUS")
             self.changeState(RobotState.AUTONOMOUS)
+
             return True
         return False
     
@@ -43,8 +55,8 @@ class RobotBase:
         return False
 
     def disabledInit(self):
+        self.telemetry.sendDS(f"[STATE] DISABLE")
         if (self.state != RobotState.DISABLED):
-            self.telemetry.sendDS(f"[STATE] DISABLE")
             self.changeState(RobotState.DISABLED)
             return True
         return False
@@ -57,11 +69,11 @@ class RobotBase:
             return
         match packet.split(",")[0]:
             case "jstk":
-                dctrls = packet.replace(';', '').replace('\n', '').split(',')
+                dctrls = packet.replace(';', '').replace('\n', '').split(',')[1:]
                 try:
-                    self.teleopInstructions["joystick"](JoystickAxis.convertFromList(dctrls[1:]))
+                    self.teleopInstructions["joystick"](JoystickAxis.convertFromList(dctrls))
                 except ValueError:
-                    self.telemetry.warn(f"Failed to decode joystick axies: {packet}")
+                    self.telemetry.warn(f"Failed to decode joystick axies: {dctrls}")
                     return
             case "btn":
                 name = packet.replace(';', '').replace('\n', '').split(",")[1].upper()
@@ -70,7 +82,7 @@ class RobotBase:
                     if button in self.teleopInstructions:
                         self.teleopInstructions[button]()
                 except KeyError:
-                    self.telemetry.warn(f"Recieved an unknown teleop button: {packet}")
+                    self.telemetry.warn(f"Recieved an unknown teleop button: {name}")
                     return
             case _:
                 self.telemetry.warn(f"Recieved an unknown teleop input: {packet}")

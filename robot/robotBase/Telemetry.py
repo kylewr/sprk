@@ -25,22 +25,36 @@ class Telemetry:
         if self._dsMethod is not None:
             self._dsMethod(toSend)
     
-    def warn(self, message: str) -> None:
-        toSend = f"\033[93m[{self.getTimestamp()}] {message}\033[0m"
-        print(toSend)
+    def success(self, message: str) -> None:
+        toSend = f"[{self.getTimestamp()}] {message}"
+        print(f"\033[92m{toSend}\033[0m")
         if self._dsMethod is not None:
-            self._dsMethod(toSend)
+            self._dsMethod(f"%GREEN%{toSend}")
+
+    def warn(self, message: str) -> None:
+        toSend = f"[{self.getTimestamp()}] {message}"
+        print(f"\033[93m{toSend}\033[0m")
+        if self._dsMethod is not None:
+            self._dsMethod(f"%YELLOW%{toSend}")
     
     def err(self, message: str) -> None:
-        toSend = f"\033[91m[{self.getTimestamp()}] {message}\033[0m"
-        print(toSend)
+        toSend = f"[{self.getTimestamp()}] {message}"
+        print(f"\033[91m{toSend}\033[0m")
         if self._dsMethod is not None:
-            self._dsMethod(toSend)
+            self._dsMethod(f"%RED%{toSend}")
     
     def logSubsystem(self, subsystem: str, message: str, color: str = "\033[0m") -> None:
         toSend = f"[{self.getTimestamp()}] ({subsystem}): {message}"
         print(f"{color}{toSend}\033[0m")
         if self._dsMethod is not None:
+            colorTranslation = {
+                "\033[91m": f"%RED%",
+                "\033[92m": f"%GREEN%",
+                "\033[93m": f"%YELLOW%",
+                "\033[0m": ""
+            }
+            if (color in colorTranslation.keys()):
+                toSend = f"{colorTranslation[color]}{toSend}"
             self._dsMethod(toSend)
 
 class TelemetrySubsystem:
@@ -57,6 +71,9 @@ class TelemetrySubsystem:
         if self.telem:
             self.telem.logSubsystem(self.name, message, color)
     
+    def success(self, message: str) -> None:
+        self.info(message, "\033[92m")
+
     def warn(self, message: str) -> None:
         self.info(message, "\033[93m")
     
@@ -73,4 +90,5 @@ class TelemetrySubsystem:
     
     def toggleVerbose(self) -> None:
         self.isVerbose = not self.isVerbose
-        self.verbose("Verbose enabled.")
+        if self.isVerbose:
+            self.success("Verbose enabled.")

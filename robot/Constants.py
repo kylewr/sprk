@@ -1,10 +1,11 @@
 class Constants:
 
-    SERIAL_PORT = "COM4"
+    SIM_SERIAL_PORT = "COM5"
+    SERIAL_PORT = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_34331323635351010260-if00"
     BAUD_RATE = 115200
 
     class GPIOMap:
-        FL   = (3, 5)
+        FL = (3, 5)
         FR = (11, 13)
         BL = (37, 35)
         BR = (38, 36)

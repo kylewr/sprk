@@ -1,18 +1,26 @@
 import threading
+from time import sleep as timesleep
+
+from robotBase.RobotBase import RobotBase
 
 class AutonomousThread(threading.Thread):
     def __init__(self, *args, **kwargs):
         super(AutonomousThread, self).__init__(*args, **kwargs)
         super().__setattr__('daemon', True)
         self._stop_event = threading.Event()
-        self.robot = None
+        self.robot: RobotBase = None
         self.endAction = lambda: None
 
-    def passRobot(self, robot):
+    def passRobot(self, robot: RobotBase):
         self.robot = robot
     
     def withEndAction(self, action):
         self.endAction = action
+
+    def sleep(self, seconds: float):
+        if self.stopped():
+            return
+        return lambda: timesleep(seconds)
 
     def stop(self):
         self._stop_event.set()
