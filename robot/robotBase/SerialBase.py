@@ -55,7 +55,7 @@ class SerialBase:
         self._flushThread = Thread(target=self._flush, daemon=True)
         self._listenThread = Thread(target=self._listen, daemon=True)
     
-    def write(self, data):
+    def write(self, data = "\n"):
         if (self.isInMultiCommand):
             if data == '\n':
                 data = f";{self.multiCommand[:-1]}"
@@ -64,8 +64,11 @@ class SerialBase:
             else:
                 self.multiCommand += f"{data}."
                 return
-        self.port.write(data.encode())
-        self.telemetry.verbose(f"Sent: {data}")
+        try:
+            self.port.write(data.encode())
+            self.telemetry.verbose(f"Sent: {data}")
+        except Exception as e:
+            self.telemetry.err(f"Failed to write to serial port: {e}! Check the connection of the serial device.")
     
     def startMultiCommand(self):
         self.isInMultiCommand = True

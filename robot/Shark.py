@@ -52,14 +52,15 @@ class SHARK(RobotBase.RobotBase):
             self.pinchers.telemetry.isVerbose = True
 
         self._autonMap: dict[str, AutonomousThread] = {
+            "Stepper Test": Autonomous.StepperTest,
             "Drivetrain Self-Test": Autonomous.DrivetrainTest,
             "Drivetrain Demo": Autonomous.Demo,
         }
 
-        self.telemetry.err(self.getAutonsAsCSV())
-
         self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
+
+        self.turretVel = 0
 
         self.finalizeInit()
     
@@ -86,8 +87,13 @@ class SHARK(RobotBase.RobotBase):
             self._selectedAutonThread.start()
 
     def teleopInit(self):
+        if (self._selectedAutonThread is not None):
+            self._selectedAutonThread.stop()
+            self._selectedAutonThread = None
+
         if (super().teleopInit()):
             self.drivetrain.stop()
+            self.arm.enable()
 
     def disabledInit(self):
         if (self._selectedAutonThread is not None):
@@ -96,7 +102,7 @@ class SHARK(RobotBase.RobotBase):
 
         if (super().disabledInit()):
             self.drivetrain.stop()
-            self.arm.stop()
+            self.arm.disable()
             self.pinchers.stop()
     
     def emergencyStop(self):
@@ -108,16 +114,37 @@ class SHARK(RobotBase.RobotBase):
     def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
         self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_X])
 
+        # if jctrls[JoystickAxis.RIGHT_TRIGGER] - jctrls[JoystickAxis.LEFT_TRIGGER] == 1:
+        #     if (jctrls[JoystickAxis.RIGHT_TRIGGER] > 0):
+        #         self.arm.io.turret.rotateContinuous(StepperDirection.CW)
+        #     else:
+        #         self.arm.io.turret.rotateContinuous(StepperDirection.CW)
+        # else:
+        #     self.arm.io.turret.stop()
+
     def _loadButtons(self):
         self.registerButton(JoystickButton.A, self.pinchers.open)
         self.registerButton(JoystickButton._A, self.pinchers.close)
 
         self.registerButton(JoystickButton.B, self.arm.stow)
 
-        self.registerButton(JoystickButton._BACK, self.drivetrain.telemetry.toggleVerbose)
+        def _updateTelem():
+            self.serial.telemetry.toggleVerbose()
+            self.arm.telemetry.toggleVerbose()
+
+        self.registerButton(JoystickButton._BACK, _updateTelem)
 
         self.registerButton(JoystickButton.LEFTSHOULDER, lambda: self.arm.io.turret.rotateContinuous(StepperDirection.CW))
         self.registerButton(JoystickButton.RIGHTSHOULDER, lambda: self.arm.io.turret.rotateContinuous(StepperDirection.CCW))
-
         self.registerButton(JoystickButton._LEFTSHOULDER, self.arm.io.turret.stop)
         self.registerButton(JoystickButton._RIGHTSHOULDER, self.arm.io.turret.stop)
+
+        self.registerButton(JoystickButton.DPADUP, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CW))
+        self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CCW))
+        self.registerButton(JoystickButton._DPADUP, self.arm.io.arm.stop)
+        self.registerButton(JoystickButton._DPADDOWN, self.arm.io.arm.stop)
+
+        self.registerButton(JoystickButton.DPADLEFT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CW))
+        self.registerButton(JoystickButton.DPADRIGHT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CrCW))
+        self.registerButton(JoystickButton._DPADLEFT, self.arm.io.wrist.stop)
+        self.registerButton(JoystickButton._DPADRIGHT, self.arm.io.wrist.stop)

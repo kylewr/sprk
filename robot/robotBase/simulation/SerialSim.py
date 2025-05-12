@@ -20,7 +20,7 @@ class SerialSim:
     def close(self):
         self.telemetry.warn(f"Closing serial port {self.port}.")
     
-    def write(self, data):
+    def write(self, data = "\n"):
         if (self.isInMultiCommand):
             if data == '\n':
                 data = f";{self.multiCommand[:-1]}"

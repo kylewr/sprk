@@ -3,15 +3,15 @@
 
 #define SIM
 
-#define TURRET_DIR_PIN 2
-#define TURRET_STEP_PIN 3
-#define TURRET_DISABLE_PIN 4
-#define ARM_DIR_PIN 5
-#define ARM_STEP_PIN 6
-#define ARM_DISABLE_PIN 7
-#define WRIST_DIR_PIN 8
-#define WRIST_STEP_PIN 9
-#define WRIST_DISABLE_PIN 10
+#define TURRET_STEP_PIN 2 
+#define TURRET_DIR_PIN 5
+#define TURRET_DISABLE_PIN 8
+#define ARM_STEP_PIN 3
+#define ARM_DIR_PIN 6
+#define ARM_DISABLE_PIN 8
+#define WRIST_STEP_PIN 4
+#define WRIST_DIR_PIN 7
+#define WRIST_DISABLE_PIN 8
 
 #define STEPS_PER_ROT 200
 
@@ -32,6 +32,8 @@ void setup()
     wrist.setRPM(120);
 
     turret.setAccelerationMode(AsyncStepper::CONSTANT);
+    arm.setAccelerationMode(AsyncStepper::CONSTANT);
+    wrist.setAccelerationMode(AsyncStepper::CONSTANT);
 
     Serial.begin(115200);
     Serial.setTimeout(100);

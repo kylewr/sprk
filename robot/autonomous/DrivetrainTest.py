@@ -22,7 +22,7 @@ class DrivetrainTest(AutonomousThread.AutonomousThread):
         )
 
     def run(self):
-        self.robot: 'SHARK' = self.robot # define typing for SHARK
+        self.robot: 'SHARK' # define typing for SHARK
 
         actions = [
             *self.getModuleSpeedAction(0),

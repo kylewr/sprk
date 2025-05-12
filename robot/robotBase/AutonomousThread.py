@@ -9,13 +9,13 @@ class AutonomousThread(threading.Thread):
         super().__setattr__('daemon', True)
         self._stop_event = threading.Event()
         self.robot: RobotBase = None
-        self.endAction = lambda: None
+        self.endAction: function = lambda: None
 
     def passRobot(self, robot: RobotBase):
         self.robot = robot
     
     def withEndAction(self, action):
-        self.endAction = action
+        self.endAction: function = action
 
     def sleep(self, seconds: float):
         if self.stopped():

@@ -41,6 +41,13 @@ class VirtualStepper:
     def setRPM(self, rpm: int) -> None:
         self.rpm = rpm
         self.serial.write(f"{self.id}rpm{rpm}")
+    
+    def singleRotate(self, direction: StepperDirection) -> None:
+        self.continuous = False
+        if direction == StepperDirection.CW:
+            self.serial.write(f"{self.id}srcw")
+        elif direction == StepperDirection.CCW:
+            self.serial.write(f"{self.id}srccw")
 
     def rotateContinuous(self, direction: StepperDirection) -> None:
         self.continuous = True

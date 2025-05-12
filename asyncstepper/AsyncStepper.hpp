@@ -76,7 +76,7 @@ public:
         pinMode(m_stepPin, OUTPUT);
         pinMode(m_enablePin, OUTPUT);
 
-        enable();
+        disable();
     }
 
     /**
