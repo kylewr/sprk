@@ -5,6 +5,16 @@ from robotBase.simulation.SimState import SimState
 class StepperDirection(Enum):
     CW = 1  # Clockwise
     CCW = -1  # Counter-clockwise
+    STOP = 0  # Stop
+
+    @classmethod
+    def flipDir(cls, dir: 'StepperDirection') -> 'StepperDirection':
+        if dir == cls.CW:
+            return cls.CCW
+        elif dir == cls.CCW:
+            return cls.CW
+        else:
+            return cls.STOP
 
 """
 Defines a virtual stepper which goes through
@@ -55,6 +65,8 @@ class VirtualStepper:
             self.serial.write(f"{self.id}rcw")
         elif direction == StepperDirection.CCW:
             self.serial.write(f"{self.id}rccw")
+        elif direction == StepperDirection.STOP:
+            self.stop()
 
     def stop(self) -> None:
         self.continuous = False

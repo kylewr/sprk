@@ -139,12 +139,31 @@ class SHARK(RobotBase.RobotBase):
         self.registerButton(JoystickButton._LEFTSHOULDER, self.arm.io.turret.stop)
         self.registerButton(JoystickButton._RIGHTSHOULDER, self.arm.io.turret.stop)
 
-        self.registerButton(JoystickButton.DPADUP, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CW))
-        self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CCW))
-        self.registerButton(JoystickButton._DPADUP, self.arm.io.arm.stop)
-        self.registerButton(JoystickButton._DPADDOWN, self.arm.io.arm.stop)
+        # self.registerButton(JoystickButton.DPADUP, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CW))
+        # self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CCW))
+        self.registerButton(JoystickButton.DPADUP, lambda: self.arm.moveArm(StepperDirection.CW))
+        self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.moveArm(StepperDirection.CCW))
+        self.registerButton(JoystickButton._DPADUP, lambda: self.arm.moveArm(StepperDirection.STOP))
+        self.registerButton(JoystickButton._DPADDOWN, lambda: self.arm.moveArm(StepperDirection.STOP))
 
         self.registerButton(JoystickButton.DPADLEFT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CW))
-        self.registerButton(JoystickButton.DPADRIGHT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CrCW))
+        self.registerButton(JoystickButton.DPADRIGHT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CCW))
         self.registerButton(JoystickButton._DPADLEFT, self.arm.io.wrist.stop)
         self.registerButton(JoystickButton._DPADRIGHT, self.arm.io.wrist.stop)
+
+        def highRPM():
+            self.serial.startMultiCommand()
+            self.arm.io.turret.setRPM(280)
+            self.arm.io.arm.setRPM(160)
+            self.arm.io.wrist.setRPM(160)
+            self.serial.write()
+        
+        def lowRPM():
+            self.serial.startMultiCommand()
+            self.arm.io.turret.setRPM(120)
+            self.arm.io.arm.setRPM(120)
+            self.arm.io.wrist.setRPM(120)
+            self.serial.write()
+
+        self.registerButton(JoystickButton.Y, highRPM)
+        self.registerButton(JoystickButton.X, lowRPM)

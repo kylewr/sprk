@@ -58,7 +58,7 @@ class SerialBase:
     def write(self, data = "\n"):
         if (self.isInMultiCommand):
             if data == '\n':
-                data = f";{self.multiCommand[:-1]}"
+                data = f";{self.multiCommand[:-1]}."
                 self.multiCommand = ""
                 self.isInMultiCommand = False
             else:

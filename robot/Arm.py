@@ -1,6 +1,6 @@
 from robotBase import Subsystem
 from robotBase.simulation.SimState import SimState
-from robotBase.actuation.VirtualStepper import VirtualStepper
+from robotBase.actuation.VirtualStepper import StepperDirection, VirtualStepper
 
 from Constants import Constants
 
@@ -52,23 +52,24 @@ class Arm(Subsystem.Subsystem):
         self.io.arm.stop()
         self.io.wrist.stop()
         self.serial.write("\n")
+        # self.serial.write(",2")
         self.telemetry.verbose("Stopping all motors.")
     
     def enable(self) -> None:
-        # self.serial.startMultiCommand()
-        # self.io.turret.setEnabled(True)
-        # self.io.arm.setEnabled(True)
-        # self.io.wrist.setEnabled(True)
         self.serial.write(",0")
         self.telemetry.verbose("Enabling all steppers.")
 
     def disable(self) -> None:
-        # self.serial.startMultiCommand()
-        # self.io.turret.setEnabled(False)
-        # self.io.arm.setEnabled(False)
-        # self.io.wrist.setEnabled(False)
         self.serial.write(",1")
         self.telemetry.warn("Disabling all steppers.")
+    
+    def moveArm(self, dir):
+        self.serial.startMultiCommand()
+        self.io.arm.rotateContinuous(dir)
+        self.io.wrist.setRPM(80)
+        self.io.wrist.rotateContinuous(StepperDirection.flipDir(dir))
+        # self.io.wrist.rotateContinuous(dir)
+        self.serial.write()
 
 if SimState.isSimulation():
     from robotBase.simulation.SerialSim import SerialSim as Serial

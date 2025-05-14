@@ -10,7 +10,7 @@ class Constants:
         BL = (37, 35)
         BR = (38, 36)
 
-        SERVO = 7
+        SERVO = 8
 
     class SerialMap:
         TURRET = 0
