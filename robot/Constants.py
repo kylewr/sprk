@@ -7,8 +7,8 @@ class Constants:
     class GPIOMap:
         FL = (3, 5)
         FR = (11, 13)
-        BL = (37, 35)
-        BR = (38, 36)
+        BL = (29, 31) #(38, 36)
+        BR = (21, 23) #(37, 35)
 
         SERVO = 8
 

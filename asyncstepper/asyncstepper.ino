@@ -147,6 +147,9 @@ void loop()
             { // [#]ang[int angle]
                 steppers[stepperIndex]->setAngle(currentMessage.substring(3).toInt());
             }
+            // else if (currentMessage.starsWith("macc")) {
+            //     steppers[stepperIndex]->setAccelerationMode(currentMessage.substring(4).toInt());
+            // }
             else if (currentMessage.startsWith("acc"))
             { // [#]acc[accel]
                 steppers[stepperIndex]->setAcceleration(currentMessage.substring(3).toInt());
