@@ -3,6 +3,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from robotBase.AutonomousThread import AutonomousThread
 
+from threading import Thread
+from time import sleep
+
 from robotBase.Telemetry import Telemetry
 from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.simulation.SimState import SimState
@@ -13,12 +16,31 @@ class RobotBase:
         self.telemetry.info("RobotBase initialized.")
         self.state = RobotState.DISABLED
 
+        self.alive = True
+        self.timeSinceLastPacket = 0
+        self.useHeartbeatCheck = True
+        self._heartbeatThreadGenerator = lambda: Thread(target=self._heartbeatTarget, daemon=True)
+        self._heartbeatThread = None
+
         self._autonMap: dict[str, AutonomousThread] = {}
         self._selectedAutonName: str = None
         self._selectedAutonThread: AutonomousThread = None
 
         self.teleopInstructions: dict[JoystickButton, function] = {}
     
+    def _heartbeatTarget(self) -> None:
+        self.timeSinceLastPacket = 0
+        while self.alive and self.state != RobotState.DISABLED and self.useHeartbeatCheck:
+            sleep(0.5)
+            self.timeSinceLastPacket += 1
+            if self.timeSinceLastPacket > 1:
+                self.disabledInit()
+                self.telemetry.err("Heartbeat lost! Disabling robot.")
+
+    def startHeartbeat(self) -> None:
+        self._heartbeatThread = self._heartbeatThreadGenerator()
+        self._heartbeatThread.start()
+
     def finalizeInit(self) -> None:
         self.changeState(RobotState.DISABLED)
         self.telemetry.info("Robot initialization complete!")
@@ -49,20 +71,39 @@ class RobotBase:
     
     def teleopInit(self):
         if (self.state != RobotState.TELEOP):
+            self.useHeartbeatCheck = True
             self.telemetry.sendDS(f"[STATE] TELEOP")
             self.changeState(RobotState.TELEOP)
+            self.startHeartbeat()
             return True
         return False
 
     def disabledInit(self):
         self.telemetry.sendDS(f"[STATE] DISABLE")
         if (self.state != RobotState.DISABLED):
+            self.useHeartbeatCheck = False
             self.changeState(RobotState.DISABLED)
+
+            if (self._heartbeatThread is not None):
+                try:
+                    self._heartbeatThread.join()
+                except RuntimeError:
+                    pass
+                self._heartbeatThread = None
             return True
         return False
         
     def emergencyStop(self) -> None:
         pass
+
+    def cleanup(self) -> None:
+        self.alive = False
+        self.telemetry.info("RobotBase cleanup complete.")
+        if (SimState.isSimulation()):
+            self.telemetry.info("Simulated robot cleanup complete.")
+        if (self._heartbeatThread is not None):
+            self._heartbeatThread.join()
+        self._heartbeatThread = None
 
     def handleTeleop(self, packet: str) -> None:
         if (self.state != RobotState.TELEOP):

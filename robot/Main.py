@@ -1,5 +1,6 @@
 import socket
 from time import sleep
+from threading import Thread
 
 from robotBase.RobotEnums import RobotState
 from robotBase.simulation.SimState import SimState
@@ -33,8 +34,8 @@ def main():
 
             robot.telemetry.sendDS("[STATE] DISABLE")
             sleep(0.2)
-
-            robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}[AUTONS]{robot.getAutonsAsCSV()}")
+            simFlag = ",sim" if SimState.isSimulation() else ""
+            robot.telemetry.sendDS(f"[ROBOTINFO] \nBuild Time: {SimState.getBuildTime()}\nSimluation: {SimState.isSimulation()}[SIG][AUTONS]{robot.getAutonsAsCSV()}[SIG][FLAGS]{simFlag},camera,\n")
 
             while True:
                 try:
@@ -45,13 +46,19 @@ def main():
                 if not data:
                     break
                 message = data.decode('utf-8')
+
+                robot.timeSinceLastPacket = 0
                 if message.startswith("te-"): # teleop packet
                     robot.handleTeleop(message[3:])
                 elif message.startswith("init"):
                     robot.telemetry.success("Recieved Driver Station info: " + message[5:])
                 elif message.startswith("se-auto,"):
                     robot.selectAuton(message[8:])
-                    
+                elif message.startswith("cam-"):
+                    if message[4:].startswith("start"):
+                        robot.camera.start()
+                    elif message[4:].startswith("stop"):
+                        robot.camera.stop()
 
                 if message.startswith("exit"):
                     robotAlive = False
@@ -67,8 +74,11 @@ def main():
                 robot.emergencyStop()
             print(f"\033[90mSocket lost connection! {addr}\033[0m")
         conn.close()
+        robot.cleanup()
     except KeyboardInterrupt:
         robot.emergencyStop()
+        robot.cleanup()
 
 if __name__ == '__main__':
+    global lastHeartbeat, heartbeatThread
     main()

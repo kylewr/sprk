@@ -12,5 +12,8 @@ class SimState:
     
     @staticmethod
     def getBuildTime():
-        with open("./time.txt", 'r') as f:
-            return f.read().strip()
+        try:
+            with open("./_DEPLOYTIME.txt", 'r') as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            return "Unknown Build Time"

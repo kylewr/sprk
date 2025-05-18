@@ -14,7 +14,9 @@ class GPIOServo:
         
     def setAngle(self, angle: float) -> None:
         self.angle = max(min(angle, self.max_angle), self.min_angle)
-        duty_cycle = (self.angle / 18) + 2
+        angleTransform = self.angle
+
+        duty_cycle = (angleTransform / 18) + 2
         self.pwm.ChangeDutyCycle(duty_cycle)
     
     def stop(self) -> None:

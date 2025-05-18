@@ -19,8 +19,8 @@ class Constants:
     
     class ActuationConstants:
         PINCHER_OPEN = 0
-        PINCHER_CLOSE = 180
+        PINCHER_CLOSE = 60
         PINCHER_MIN = 0
-        PINCHER_MAX = 180
+        PINCHER_MAX = 270
 
         POSITION_STOW = (0, 0, 0)

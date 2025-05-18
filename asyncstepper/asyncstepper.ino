@@ -27,9 +27,9 @@ AsyncStepper *steppers[] = {
 
 void setup()
 {
-    turret.setRPM(120);
-    arm.setRPM(120);
-    wrist.setRPM(120);
+    turret.setRPM(280);
+    arm.setRPM(160);
+    wrist.setRPM(160);
 
     turret.setAccelerationMode(AsyncStepper::CONSTANT);
     arm.setAccelerationMode(AsyncStepper::CONSTANT);

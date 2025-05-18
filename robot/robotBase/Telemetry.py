@@ -23,25 +23,25 @@ class Telemetry:
         toSend = f"[{self.getTimestamp()}] {message}"
         print(toSend)
         if self._dsMethod is not None:
-            self._dsMethod(toSend)
+            self._dsMethod("%NL" +toSend)
     
     def success(self, message: str) -> None:
         toSend = f"[{self.getTimestamp()}] {message}"
         print(f"\033[92m{toSend}\033[0m")
         if self._dsMethod is not None:
-            self._dsMethod(f"%GREEN%{toSend}")
+            self._dsMethod(f"%NL%%GREEN%{toSend}")
 
     def warn(self, message: str) -> None:
         toSend = f"[{self.getTimestamp()}] {message}"
         print(f"\033[93m{toSend}\033[0m")
         if self._dsMethod is not None:
-            self._dsMethod(f"%YELLOW%{toSend}")
+            self._dsMethod(f"%NL%%YELLOW%{toSend}")
     
     def err(self, message: str) -> None:
         toSend = f"[{self.getTimestamp()}] {message}"
         print(f"\033[91m{toSend}\033[0m")
         if self._dsMethod is not None:
-            self._dsMethod(f"%RED%{toSend}")
+            self._dsMethod(f"%NL%%RED%{toSend}")
     
     def logSubsystem(self, subsystem: str, message: str, color: str = "\033[0m") -> None:
         toSend = f"[{self.getTimestamp()}] ({subsystem}): {message}"
@@ -55,7 +55,7 @@ class Telemetry:
             }
             if (color in colorTranslation.keys()):
                 toSend = f"{colorTranslation[color]}{toSend}"
-            self._dsMethod(toSend)
+            self._dsMethod("%NL%" + toSend)
 
 class TelemetrySubsystem:
     def __init__(self, name: str) -> None:

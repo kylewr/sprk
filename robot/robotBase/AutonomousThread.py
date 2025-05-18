@@ -13,6 +13,7 @@ class AutonomousThread(threading.Thread):
 
     def passRobot(self, robot: RobotBase):
         self.robot = robot
+        self.robot.useHeartbeatCheck = False
     
     def withEndAction(self, action):
         self.endAction: function = action

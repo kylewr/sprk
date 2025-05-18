@@ -7,6 +7,7 @@ from robotBase.AutonomousThread import AutonomousThread
 from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.SerialBase import SerialBase as Serial
 
+from Camera import RobotCamera
 from Constants import Constants
 
 from Arm import Arm, ArmIOMap
@@ -57,6 +58,9 @@ class SHARK(RobotBase.RobotBase):
             "Drivetrain Demo": Autonomous.Demo,
         }
 
+        self.camera = RobotCamera()
+        self.camera.start()
+
         self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
 
@@ -106,10 +110,15 @@ class SHARK(RobotBase.RobotBase):
             self.pinchers.stop()
     
     def emergencyStop(self):
+        super().emergencyStop()
         self.drivetrain.estop()
         self.arm.estop()
         self.pinchers.estop()
         self.changeState(RobotState.DISABLED)
+    
+    def cleanup(self):
+        super().cleanup()
+        self.camera.stop()
 
     def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
         self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_X])
@@ -131,6 +140,7 @@ class SHARK(RobotBase.RobotBase):
         def _updateTelem():
             self.serial.telemetry.toggleVerbose()
             self.arm.telemetry.toggleVerbose()
+            self.pinchers.telemetry.toggleVerbose()
 
         self.registerButton(JoystickButton._BACK, _updateTelem)
 
@@ -151,19 +161,25 @@ class SHARK(RobotBase.RobotBase):
         self.registerButton(JoystickButton._DPADLEFT, self.arm.io.wrist.stop)
         self.registerButton(JoystickButton._DPADRIGHT, self.arm.io.wrist.stop)
 
-        def highRPM():
-            self.serial.startMultiCommand()
-            self.arm.io.turret.setRPM(280)
-            self.arm.io.arm.setRPM(160)
-            self.arm.io.wrist.setRPM(160)
-            self.serial.write()
-        
-        def lowRPM():
-            self.serial.startMultiCommand()
-            self.arm.io.turret.setRPM(120)
-            self.arm.io.arm.setRPM(120)
-            self.arm.io.wrist.setRPM(120)
-            self.serial.write()
+        # self.registerButton(JoystickButton.X, self.arm.disable)
+        # self.registerButton(JoystickButton.Y, self.arm.enable)
 
-        self.registerButton(JoystickButton.Y, highRPM)
-        self.registerButton(JoystickButton.X, lowRPM)
+        self.registerButton(JoystickButton.X, self.camera.start)
+        self.registerButton(JoystickButton.Y, self.camera.stop)
+
+        # def highRPM():
+        #     self.serial.startMultiCommand()
+        #     self.arm.io.turret.setRPM(280)
+        #     self.arm.io.arm.setRPM(160)
+        #     self.arm.io.wrist.setRPM(160)
+        #     self.serial.write()
+        
+        # def lowRPM():
+        #     self.serial.startMultiCommand()
+        #     self.arm.io.turret.setRPM(120)
+        #     self.arm.io.arm.setRPM(120)
+        #     self.arm.io.wrist.setRPM(120)
+        #     self.serial.write()
+
+        # self.registerButton(JoystickButton.Y, highRPM)
+        # self.registerButton(JoystickButton.X, lowRPM)
