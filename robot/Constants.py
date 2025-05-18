@@ -5,10 +5,16 @@ class Constants:
     BAUD_RATE = 115200
 
     class GPIOMap:
+        PWM_FREQ = 4000
         FL = (3, 5)
         FR = (11, 13)
-        BL = (29, 31) #(38, 36)
-        BR = (21, 23) #(37, 35)
+        BL = (29, 31)
+        BR = (21, 23)
+
+        FL_INVERT = False
+        FR_INVERT = False
+        BL_INVERT = True
+        BR_INVERT = True
 
         SERVO = 8
 

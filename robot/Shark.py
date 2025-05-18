@@ -59,7 +59,7 @@ class SHARK(RobotBase.RobotBase):
         }
 
         self.camera = RobotCamera()
-        self.camera.start()
+        # self.camera.start()
 
         self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
@@ -118,9 +118,17 @@ class SHARK(RobotBase.RobotBase):
     
     def cleanup(self):
         super().cleanup()
+        self.drivetrain.io.cleanup()
         self.camera.stop()
 
+    def squareJoystick(self, jctrls: dict['JoystickAxis', int]):
+        jctrls[JoystickAxis.LEFT_X] = jctrls[JoystickAxis.LEFT_X] ** 2 * (1 if jctrls[JoystickAxis.LEFT_X] > 0 else -1)
+        jctrls[JoystickAxis.LEFT_Y] = jctrls[JoystickAxis.LEFT_Y] ** 2 * (1 if jctrls[JoystickAxis.LEFT_Y] > 0 else -1)
+        jctrls[JoystickAxis.RIGHT_X] = jctrls[JoystickAxis.RIGHT_X] ** 2 * (1 if jctrls[JoystickAxis.RIGHT_X] > 0 else -1)
+
     def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
+        # self.telemetry.success(f"Joystick: {jctrls[JoystickAxis.LEFT_Y]}")
+        # self.squareJoystick(jctrls)
         self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_X])
 
         # if jctrls[JoystickAxis.RIGHT_TRIGGER] - jctrls[JoystickAxis.LEFT_TRIGGER] == 1:
@@ -138,9 +146,10 @@ class SHARK(RobotBase.RobotBase):
         self.registerButton(JoystickButton.B, self.arm.stow)
 
         def _updateTelem():
-            self.serial.telemetry.toggleVerbose()
-            self.arm.telemetry.toggleVerbose()
-            self.pinchers.telemetry.toggleVerbose()
+            self.drivetrain.telemetry.toggleVerbose()
+            # self.serial.telemetry.toggleVerbose()
+            # self.arm.telemetry.toggleVerbose()
+            # self.pinchers.telemetry.toggleVerbose()
 
         self.registerButton(JoystickButton._BACK, _updateTelem)
 
@@ -164,8 +173,8 @@ class SHARK(RobotBase.RobotBase):
         # self.registerButton(JoystickButton.X, self.arm.disable)
         # self.registerButton(JoystickButton.Y, self.arm.enable)
 
-        self.registerButton(JoystickButton.X, self.camera.start)
-        self.registerButton(JoystickButton.Y, self.camera.stop)
+        # self.registerButton(JoystickButton.X, self.camera.start)
+        # self.registerButton(JoystickButton.Y, self.camera.stop)
 
         # def highRPM():
         #     self.serial.startMultiCommand()

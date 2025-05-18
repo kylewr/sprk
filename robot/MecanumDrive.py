@@ -1,34 +1,23 @@
-from robotBase import Subsystem, IOMap
-from robotBase.actuation.HBridgeMotor import HBridgeMotor, MotorDirection
+from robotBase import Subsystem
+from robotBase.actuation.HBridgeMotor import PWMHBridgeMotor, MotorDirection
+from robotBase.IOMap import GPIOMap
 from robotBase.simulation.SimState import SimState
 
 from Constants import Constants
 
-class MecanumIOMap(IOMap.GPIOMap):
-    def __init__(self, fl: tuple, fr: tuple, bl: tuple, br: tuple) -> None:
+class MecanumIOMap(GPIOMap):
+    def __init__(self, pwmFreq: int, fl: tuple, fr: tuple, bl: tuple, br: tuple) -> None:
         super().__init__()
-        self.fl = HBridgeMotor(fl)
-        self.fr = HBridgeMotor(fr)
-        self.bl = HBridgeMotor(bl)
-        self.br = HBridgeMotor(br)
+        self.fl = PWMHBridgeMotor(fl, pwmFreq)
+        self.fr = PWMHBridgeMotor(fr, pwmFreq)
+        self.bl = PWMHBridgeMotor(bl, pwmFreq)
+        self.br = PWMHBridgeMotor(br, pwmFreq)
         self.modules = [self.fl, self.fr, self.bl, self.br]
 
-        [self.addPin(pin) for mod in self.modules for pin in mod.pins] # Add all pins to the map
-        self.initOut() # Initialize all pins as outputs
-    
-    # def setSpeed(seself.lf, module: int, speed: int) -> None:
-    #     speed = max(min(speed, 1), -1) # Clamp the speed to [-1, 1]
+        [mod.initGPIO() for mod in self.modules]
 
-    #     high = self.modules[module][0]
-    #     low = self.modules[module][1]
-    #     speed *= -1 if self.inverts[module] else 1 # Invert the speed if needed
-    #     self.speeds[module] = speed
-    #     if speed == 0:
-    #         gpio.output(high, gpio.HIGH)
-    #         gpio.output(low, gpio.HIGH)
-    #         return
-    #     gpio.output(high, gpio.HIGH if speed < 0 else gpio.LOW)
-    #     gpio.output(low, gpio.HIGH if speed > 0 else gpio.LOW)
+        # [self.addPin(pin) for mod in self.modules for pin in mod.pins] # Add all pins to the map
+        # self.initOut() # Initialize all pins as outputs
     
     def setSpeed(self, module: int, speed: int) -> None:
         speed = max(min(speed, 1), -1) # Clamp the speed to [-1, 1]
@@ -42,14 +31,16 @@ class MecanumIOMap(IOMap.GPIOMap):
         self.modules[module].stop()
 
     def stop(self) -> None:
-        [self.stopMod(i) for i in range(4)]
+        [mod.stop() for mod in self.modules]
     
+    def cleanup(self) -> None:
+        [mod.cleanup() for mod in self.modules]
+
     @staticmethod
     def getIoPreset():
-        ioMap = MecanumIOMap(Constants.GPIOMap.FL, Constants.GPIOMap.FR, Constants.GPIOMap.BL, Constants.GPIOMap.BR)
-        ioMap.setInverts((False, False, True, True))
+        ioMap = MecanumIOMap(Constants.GPIOMap.PWM_FREQ, Constants.GPIOMap.FL, Constants.GPIOMap.FR, Constants.GPIOMap.BL, Constants.GPIOMap.BR)
+        ioMap.setInverts((Constants.GPIOMap.FL_INVERT, Constants.GPIOMap.FR_INVERT, Constants.GPIOMap.BL_INVERT, Constants.GPIOMap.BR_INVERT))
         return ioMap
-
 
 class MecanumDrive(Subsystem.Subsystem):
     def __init__(self, ioMap: MecanumIOMap):
@@ -57,21 +48,25 @@ class MecanumDrive(Subsystem.Subsystem):
         self.io = ioMap
 
     def robotCentric(self, x, y, r) -> None:
-        self.io.setSpeed(0, y + r - x) # FL
-        self.io.setSpeed(1, y - r + x) # FR
-        self.io.setSpeed(2, y + r + x) # BL
-        self.io.setSpeed(3, y - r - x) # BR
+        self.io.fl.setWithSpeed(y + r - x) # FL
+        self.io.fr.setWithSpeed(y - r + x) # FR
+        self.io.bl.setWithSpeed(y + r + x) # BL
+        self.io.br.setWithSpeed(y - r - x) # BR
         self.telemetry.verbose(f"ROB CENT - FL: {self.io.modules[0].speed}, FR: {self.io.modules[1].speed}, BL: {self.io.modules[2].speed}, BR: {self.io.modules[3].speed}")
     
     def effectiveTank(self, left, right) -> None:
-        self.io.setSpeed(0, left)
-        self.io.setSpeed(1, right)
-        self.io.setSpeed(2, left)
-        self.io.setSpeed(3, right)
+        self.io.fl.setWithSpeed(left)
+        self.io.fr.setWithSpeed(right)
+        self.io.bl.setWithSpeed(left)
+        self.io.br.setWithSpeed(right)
         self.telemetry.verbose(f"TANK - LEFT: {self.io.modules[1].speed}, RIGHT: {self.io.modules[0].speed}")
 
     def fieldCentric(self, x, y, r) -> None:
         pass
+
+    def pwmTest(self, speed) -> None:
+        self.io.br.setWithSpeed(speed)
+        self.telemetry.verbose(f"PWM TEST - BR: {self.io.modules[0].speed}")
     
     def stop(self) -> None:
         self.io.stop()
