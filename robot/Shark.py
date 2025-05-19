@@ -53,9 +53,10 @@ class SHARK(RobotBase.RobotBase):
             self.pinchers.telemetry.isVerbose = True
 
         self._autonMap: dict[str, AutonomousThread] = {
+            "Very Cool Drive Demo": Autonomous.CoolDrive,
+            "Drivetrain Demo": Autonomous.Demo,
             "Stepper Test": Autonomous.StepperTest,
             "Drivetrain Self-Test": Autonomous.DrivetrainTest,
-            "Drivetrain Demo": Autonomous.Demo,
         }
 
         self.camera = RobotCamera()
