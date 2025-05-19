@@ -28,6 +28,10 @@ class GPIOSim:
     def output(pin, state) -> None:
         GPIOSim.telemetry.verbose(f"`output` called with pin: {pin} and state: {state}")
     
+    @staticmethod
+    def cleanup(pin) -> None:
+        GPIOSim.telemetry.info(f"`cleanup` called with pin: {pin}")
+    
     class PWM:
         def __init__(self, pin, frequency) -> None:
             self.pin = pin
@@ -38,6 +42,9 @@ class GPIOSim:
         def start(self, duty_cycle) -> None:
             self.duty_cycle = duty_cycle
             GPIOSim.telemetry.verbose(f"Pin {self.pin}: `start` called with duty cycle: {duty_cycle}")
+        
+        def stop(self) -> None:
+            GPIOSim.telemetry.verbose(f"Pin {self.pin}: `stop` called")
             
         def ChangeDutyCycle(self, duty_cycle) -> None:
             self.duty_cycle = duty_cycle
