@@ -4,7 +4,7 @@ from threading import Thread
 
 from robotBase.RobotEnums import RobotState
 from robotBase.simulation.SimState import SimState
-from Shark import SHARK
+from SPRK import SPRK
 
 def main():
     mainSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -15,7 +15,7 @@ def main():
 
     mainSocket.listen(5)
 
-    robot = SHARK()
+    robot = SPRK()
     try:
         robotAlive = True
         while robotAlive:

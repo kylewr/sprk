@@ -7,7 +7,7 @@ from robotBase.AutonomousThread import AutonomousThread
 from robotBase.RobotEnums import RobotState, JoystickButton, JoystickAxis
 from robotBase.SerialBase import SerialBase as Serial
 
-from Camera import RobotCamera
+from RobotCamera import RobotCamera
 from Constants import Constants
 
 from Arm import Arm, ArmIOMap
@@ -16,7 +16,7 @@ from Pinchers import Pinchers
 
 import autonomous as Autonomous
 
-class SHARK(RobotBase.RobotBase):
+class SPRK(RobotBase.RobotBase):
     def __init__(self):
         super().__init__()
 
@@ -64,6 +64,8 @@ class SHARK(RobotBase.RobotBase):
 
         self.registerJoystickCallback(self._joystickFunc)
         self._loadButtons()
+
+        self.holdingTrigger = False
 
         self.turretVel = 0
 
@@ -120,31 +122,28 @@ class SHARK(RobotBase.RobotBase):
     def cleanup(self):
         super().cleanup()
         self.drivetrain.io.cleanup()
+        self.pinchers.servo.cleanup()
         self.camera.stop()
 
-    def squareJoystick(self, jctrls: dict['JoystickAxis', int]):
-        jctrls[JoystickAxis.LEFT_X] = jctrls[JoystickAxis.LEFT_X] ** 2 * (1 if jctrls[JoystickAxis.LEFT_X] > 0 else -1)
-        jctrls[JoystickAxis.LEFT_Y] = jctrls[JoystickAxis.LEFT_Y] ** 2 * (1 if jctrls[JoystickAxis.LEFT_Y] > 0 else -1)
-        jctrls[JoystickAxis.RIGHT_X] = jctrls[JoystickAxis.RIGHT_X] ** 2 * (1 if jctrls[JoystickAxis.RIGHT_X] > 0 else -1)
+    def slowJoystick(self, jctrls: dict['JoystickAxis', int]):
+        jctrls[JoystickAxis.LEFT_X] = jctrls[JoystickAxis.LEFT_X] / 3
+        jctrls[JoystickAxis.LEFT_Y] = jctrls[JoystickAxis.LEFT_Y] / 3
+        jctrls[JoystickAxis.RIGHT_X] = jctrls[JoystickAxis.RIGHT_X] / 3
+        return jctrls
 
     def _joystickFunc(self, jctrls: dict['JoystickAxis', int]):
         # self.telemetry.success(f"Joystick: {jctrls[JoystickAxis.LEFT_Y]}")
-        # self.squareJoystick(jctrls)
+        self.holdingTrigger = jctrls[JoystickAxis.LEFT_TRIGGER] != 0 or jctrls[JoystickAxis.RIGHT_TRIGGER] != 0
+        if (self.holdingTrigger != 0):
+            jctrls = self.slowJoystick(jctrls)
         self.drivetrain.robotCentric(jctrls[JoystickAxis.LEFT_X], jctrls[JoystickAxis.LEFT_Y], jctrls[JoystickAxis.RIGHT_X])
 
-        # if jctrls[JoystickAxis.RIGHT_TRIGGER] - jctrls[JoystickAxis.LEFT_TRIGGER] == 1:
-        #     if (jctrls[JoystickAxis.RIGHT_TRIGGER] > 0):
-        #         self.arm.io.turret.rotateContinuous(StepperDirection.CW)
-        #     else:
-        #         self.arm.io.turret.rotateContinuous(StepperDirection.CW)
-        # else:
-        #     self.arm.io.turret.stop()
-
     def _loadButtons(self):
-        self.registerButton(JoystickButton.A, self.pinchers.open)
-        self.registerButton(JoystickButton._A, self.pinchers.close)
+        self.registerButton(JoystickButton.A, self.pinchers.toggle)
 
-        self.registerButton(JoystickButton.B, self.arm.stow)
+        # self.registerButton(JoystickButton.B, self.arm.stow)
+
+        self.registerButton(JoystickButton.X, self.pinchers.servo.stop)
 
         def _updateTelem():
             self.drivetrain.telemetry.toggleVerbose()
@@ -159,17 +158,25 @@ class SHARK(RobotBase.RobotBase):
         self.registerButton(JoystickButton._LEFTSHOULDER, self.arm.io.turret.stop)
         self.registerButton(JoystickButton._RIGHTSHOULDER, self.arm.io.turret.stop)
 
-        # self.registerButton(JoystickButton.DPADUP, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CW))
-        # self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.io.arm.rotateContinuous(StepperDirection.CCW))
-        self.registerButton(JoystickButton.DPADUP, lambda: self.arm.moveArm(StepperDirection.CW))
-        self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.moveArm(StepperDirection.CCW))
-        self.registerButton(JoystickButton._DPADUP, lambda: self.arm.moveArm(StepperDirection.STOP))
-        self.registerButton(JoystickButton._DPADDOWN, lambda: self.arm.moveArm(StepperDirection.STOP))
+        self.registerButton(JoystickButton.DPADUP, lambda: self.arm.moveArm(StepperDirection.CW, self.holdingTrigger))
+        self.registerButton(JoystickButton.DPADDOWN, lambda: self.arm.moveArm(StepperDirection.CCW, self.holdingTrigger))
+        self.registerButton(JoystickButton._DPADUP, lambda: self.arm.moveArm(StepperDirection.STOP, self.holdingTrigger))
+        self.registerButton(JoystickButton._DPADDOWN, lambda: self.arm.moveArm(StepperDirection.STOP, self.holdingTrigger))
 
-        self.registerButton(JoystickButton.DPADLEFT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CW))
-        self.registerButton(JoystickButton.DPADRIGHT, lambda: self.arm.io.wrist.rotateContinuous(StepperDirection.CCW))
-        self.registerButton(JoystickButton._DPADLEFT, self.arm.io.wrist.stop)
-        self.registerButton(JoystickButton._DPADRIGHT, self.arm.io.wrist.stop)
+        def moveWrist(direction: StepperDirection, singleStep: bool):
+            if (singleStep and direction != StepperDirection.STOP):
+                self.arm.io.wrist.singleRotate(direction)
+            else:
+                self.arm.io.wrist.rotateContinuous(direction)
+        
+        def shouldStop(check: bool):
+            if (not check):
+                self.arm.io.wrist.stop()
+
+        self.registerButton(JoystickButton.DPADLEFT, lambda: moveWrist(StepperDirection.CW, self.holdingTrigger))
+        self.registerButton(JoystickButton.DPADRIGHT, lambda: moveWrist(StepperDirection.CCW, self.holdingTrigger))
+        self.registerButton(JoystickButton._DPADLEFT, lambda: shouldStop(self.holdingTrigger))
+        self.registerButton(JoystickButton._DPADRIGHT, lambda: shouldStop(self.holdingTrigger))
 
         # self.registerButton(JoystickButton.X, self.arm.disable)
         # self.registerButton(JoystickButton.Y, self.arm.enable)

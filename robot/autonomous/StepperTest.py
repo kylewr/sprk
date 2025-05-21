@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Shark import SHARK
+    from SPRK import SPRK
 
 from robotBase.actuation.VirtualStepper import StepperDirection
 from robotBase.AutonomousThread import AutonomousThread
 
 class StepperTest(AutonomousThread):
     def run(self):
-        self.robot: 'SHARK'
+        self.robot: 'SPRK'
 
         actions: tuple[function] = (
             lambda: self.robot.arm.telemetry.info("Now testing turret."),

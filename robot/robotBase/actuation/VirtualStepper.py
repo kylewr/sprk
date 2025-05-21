@@ -58,6 +58,8 @@ class VirtualStepper:
             self.serial.write(f"{self.id}srcw")
         elif direction == StepperDirection.CCW:
             self.serial.write(f"{self.id}srccw")
+        elif direction == StepperDirection.STOP:
+            self.stop()
 
     def rotateContinuous(self, direction: StepperDirection) -> None:
         self.continuous = True

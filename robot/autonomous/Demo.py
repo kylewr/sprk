@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Shark import SHARK
+    from SPRK import SPRK
 
 from robotBase.AutonomousThread import AutonomousThread
 
 class Demo(AutonomousThread):
     def run(self):
-        self.robot: 'SHARK'  # define typing for SHARK
+        self.robot: 'SPRK'  # define typing for SHARK
 
         actions = (
             self.robot.drivetrain.stop,

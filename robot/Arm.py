@@ -63,11 +63,18 @@ class Arm(Subsystem.Subsystem):
         self.serial.write(",1")
         self.telemetry.warn("Disabling all steppers.")
     
-    def moveArm(self, dir):
+    def moveArm(self, dir: StepperDirection, doSingleStep: bool):
+        if (dir == StepperDirection.STOP and doSingleStep):
+            return
+
         self.serial.startMultiCommand()
-        self.io.arm.rotateContinuous(dir)
         self.io.wrist.setRPM(80)
-        self.io.wrist.rotateContinuous(StepperDirection.flipDir(dir))
+        if (doSingleStep and dir != StepperDirection.STOP):
+            self.io.arm.singleRotate(dir)
+            self.io.wrist.singleRotate(StepperDirection.flipDir(dir))
+        else:
+            self.io.arm.rotateContinuous(dir)
+            self.io.wrist.rotateContinuous(StepperDirection.flipDir(dir))
         # self.io.wrist.rotateContinuous(dir)
         self.serial.write()
 

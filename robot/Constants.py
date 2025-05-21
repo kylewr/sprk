@@ -4,6 +4,11 @@ class Constants:
     SERIAL_PORT = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_134484749393518008D8-if00"
     BAUD_RATE = 115200
 
+    class CameraConstants:
+        EXPOSURE = 50
+        FPS = 20
+        RES = "1280x1024"
+
     class GPIOMap:
         PWM_FREQ = 4000
         FL = (3, 5)
@@ -24,8 +29,8 @@ class Constants:
         WRIST = 2
     
     class ActuationConstants:
-        PINCHER_OPEN = 0
-        PINCHER_CLOSE = 60
+        PINCHER_OPEN = 50
+        PINCHER_CLOSE = 0
         PINCHER_MIN = 0
         PINCHER_MAX = 270
 

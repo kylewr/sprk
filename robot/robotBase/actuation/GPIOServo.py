@@ -1,5 +1,8 @@
 from robotBase.simulation.SimState import SimState
 
+from threading import Thread
+from time import sleep
+
 class GPIOServo:
     def __init__(self, pin, min_angle=0, max_angle=180):
         self.pinNum = pin
@@ -13,11 +16,18 @@ class GPIOServo:
         self.pwm.start(0)
         
     def setAngle(self, angle: float) -> None:
-        self.angle = max(min(angle, self.max_angle), self.min_angle)
-        angleTransform = self.angle
+        # self.angle = max(min(angle, self.max_angle), self.min_angle)
+        angleTransform = angle
 
         duty_cycle = (angleTransform / 18) + 2
-        self.pwm.ChangeDutyCycle(duty_cycle)
+
+        def setServo():
+            self.pwm.ChangeDutyCycle(duty_cycle)
+            sleep(0.75)
+            self.pwm.ChangeDutyCycle(0)
+        
+        Thread(target=setServo,daemon=True).start()
+
     
     def stop(self) -> None:
         self.pwm.ChangeDutyCycle(0)

@@ -125,11 +125,11 @@ void loop()
 
             if (currentMessage.startsWith("srcw"))
             { // [#]srcw
-                steppers[stepperIndex]->rotateSteps(STEPS_PER_ROT);
+                steppers[stepperIndex]->rotateSteps(10);
             }
             else if (currentMessage.startsWith("srccw"))
             { // [#]srccw
-                steppers[stepperIndex]->rotateSteps(-STEPS_PER_ROT);
+                steppers[stepperIndex]->rotateSteps(-10);
             }
             else if (currentMessage.startsWith("rcw"))
             { // [#]rcw

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Shark import SHARK
+    from SPRK import SPRK
 
 from robotBase import AutonomousThread
 from robotBase.actuation.HBridgeMotor import MotorDirection
@@ -22,7 +22,7 @@ class DrivetrainTest(AutonomousThread.AutonomousThread):
         )
 
     def run(self):
-        self.robot: 'SHARK' # define typing for SHARK
+        self.robot: 'SPRK' # define typing for SHARK
 
         actions = [
             *self.getModuleSpeedAction(0),

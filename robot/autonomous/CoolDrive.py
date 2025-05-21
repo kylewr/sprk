@@ -3,13 +3,13 @@ import time
 import math
 
 if TYPE_CHECKING:
-    from Shark import SHARK
+    from SPRK import SPRK
 
 from robotBase.AutonomousThread import AutonomousThread
 
 class CoolDrive(AutonomousThread):
     def run(self):
-        self.robot: 'SHARK'
+        self.robot: 'SPRK'
 
         def ramp_velocity(x_target, y_target, r_target, duration, steps=20, label="ramping"):
             """Smooth ramp to a velocity over time using PWM."""
@@ -28,7 +28,7 @@ class CoolDrive(AutonomousThread):
         def zigzag_strafe(amplitude=100, forward_speed=50, cycles=2, duration=2):
             """Zig-zag left/right while moving forward."""
             self.robot.drivetrain.telemetry.info("start zigzag")
-            steps = 40
+            steps = 80
             for i in range(steps + 1):
                 if self.stopped():
                     break
@@ -39,48 +39,30 @@ class CoolDrive(AutonomousThread):
                 time.sleep(duration / steps)
             self.robot.drivetrain.telemetry.info("end zigzag")
 
-        def orbit_move(radius_power=50, spin_power=30, duration=3):
-            """Drive forward while rotating to make a sweeping arc."""
-            self.robot.drivetrain.telemetry.info("start orbit move")
-            steps = 30
-            for i in range(steps):
-                if self.stopped():
-                    break
-                self.robot.drivetrain.robotCentric(radius_power, radius_power, spin_power)
-                time.sleep(duration / steps)
-            self.robot.drivetrain.telemetry.info("end orbit move")
-
         actions = (
             self.robot.drivetrain.stop,
             self.sleep(0.25),
 
             # Smooth ramp forward and reverse
             lambda: ramp_velocity(0, 100, 0, duration=2, label="forward ramp"),
-            self.sleep(0.5),
             lambda: ramp_velocity(0, -100, 0, duration=2, label="reverse ramp"),
-            self.sleep(0.5),
+            self.sleep(0.25),
 
-            # Spin in place
-            lambda: ramp_velocity(0, 0, 100, duration=2, label="spin right"),
-            self.sleep(0.5),
-            lambda: ramp_velocity(0, 0, -100, duration=2, label="spin left"),
-            self.sleep(0.5),
+            # Smooth ramp left and right
+            lambda: ramp_velocity(100, 0, 0, duration=2, label="right ramp"),
+            lambda: ramp_velocity(-100, 0, 0, duration=2, label="left ramp"),
+            self.sleep(0.25),
 
             self.robot.drivetrain.stop,
-            self.sleep(0.5),
 
             # Zigzag without pause
-            lambda: zigzag_strafe(amplitude=100, forward_speed=40, cycles=2, duration=2),
-
-            # Orbiting move — curved drift
-            lambda: orbit_move(radius_power=60, spin_power=30, duration=2),
-
-            # orbiting move - drift opposite
-            lambda: orbit_move(radius_power=-60, spin_power=-30, duration=2),
+            lambda: zigzag_strafe(amplitude=100, forward_speed=70, cycles=4, duration=4),
+            lambda: zigzag_strafe(100, -70, 4, 4),
 
             self.robot.drivetrain.stop,
-            self.sleep(0.5)
+            self.sleep(0.5),
+
+            self.endAction
         )
 
-        while not self.stopped():
-            [action() if not self.stopped() else None for action in actions]
+        [action() if not self.stopped() else None for action in actions]

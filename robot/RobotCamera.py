@@ -2,10 +2,12 @@ import subprocess
 
 from robotBase.simulation.SimState import SimState
 
+from Constants import Constants
+
 class RobotCamera:
     def __init__(self):
         self.cameraProcess = None
-        self.cameraCommand = 'mjpg_streamer -i "input_uvc.so -d /dev/video0 -r 1280x1024 -f 20 -ex 960 -gain 8" -o "output_http.so"'
+        self.cameraCommand = f'mjpg_streamer -i "input_uvc.so -d /dev/video0 -r {Constants.CameraConstants.RES} -f {Constants.CameraConstants.FPS} -ex {Constants.CameraConstants.EXPOSURE}" -o "output_http.so"'
 
     def start(self):
         if (SimState.isSimulation()):

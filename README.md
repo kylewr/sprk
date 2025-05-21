@@ -1,4 +1,4 @@
-# S.H.A.R.K
+# S.P.R.K.
 
 There are two main parts to this project:
 1. The arduino custom async stepper code.
