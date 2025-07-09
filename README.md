@@ -18,7 +18,7 @@ There are two main parts to this project:
 - Onboard radio and static-ip'd to `10.8.62.2`
 
 ## Robot Code
-- Fully ustom robot framework
+- Fully custom robot framework
 - Subsystem based structure
 - Smart telemetry for sending data to the operator console
 - Autonomous commands built with threads
@@ -26,3 +26,7 @@ There are two main parts to this project:
 #### Simulation Support
 - Simulates a serial port, as well as any system outputs
 - Simulates GPIO
+
+
+# Project Flaws
+- The intention with the Arduino was the create intuiative, precise stepper control, as well as to be able to use a CNC hat for electronics purposes; however, the latency over serial between the Pi and the Arduino is so bad that this ended up not working well, and is practically redundant.
