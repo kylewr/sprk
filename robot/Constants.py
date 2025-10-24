@@ -1,7 +1,7 @@
 class Constants:
 
-    SIM_SERIAL_PORT = "COM6"
-    SERIAL_PORT = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_134484749393518008D8-if00"
+    SIM_SERIAL_PORT = "COM5"
+    SERIAL_PORT = "/dev/ttyACM0"
     BAUD_RATE = 115200
 
     class CameraConstants:

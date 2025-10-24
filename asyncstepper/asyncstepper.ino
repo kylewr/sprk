@@ -42,11 +42,31 @@ void setup()
 
 String lastCommand = "";
 
+bool startedIncoming = false;
+bool completeIncoming = false;
+String incomingCommand = "";
+
 void loop()
 {
     if (Serial.available() > 0)
     {
-        String original = Serial.readString();
+        startedIncoming = true;
+        char c = (char)Serial.read();
+        if (c == '!') {
+          completeIncoming = true;
+          startedIncoming = false;
+          return;
+        }
+        incomingCommand.concat(c);
+    }
+
+    if (completeIncoming) {
+        completeIncoming = false;
+        String original = incomingCommand;
+        incomingCommand = "";
+
+        Serial.println(original);
+
         if (original.startsWith("l"))
         {
             original = lastCommand;

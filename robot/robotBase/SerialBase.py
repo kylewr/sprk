@@ -65,6 +65,7 @@ class SerialBase:
                 self.multiCommand += f"{data}."
                 return
         try:
+            data += '!' # end of command character
             self.port.write(data.encode())
             self.telemetry.verbose(f"Sent: {data}")
         except Exception as e:

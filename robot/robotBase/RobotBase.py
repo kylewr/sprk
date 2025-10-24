@@ -1,3 +1,4 @@
+from os import replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -108,25 +109,30 @@ class RobotBase:
     def handleTeleop(self, packet: str) -> None:
         if (self.state != RobotState.TELEOP):
             return
-        match packet.split(",")[0]:
-            case "jstk":
-                dctrls = packet.replace(';', '').replace('\n', '').split(',')[1:]
-                try:
-                    self.teleopInstructions["joystick"](JoystickAxis.convertFromList(dctrls))
-                except ValueError:
-                    self.telemetry.warn(f"Failed to decode joystick axies: {dctrls}")
-                    return
-            case "btn":
-                name = packet.replace(';', '').replace('\n', '').split(",")[1].upper()
-                try:
-                    button = JoystickButton[name.replace("-", "_")]
-                    if button in self.teleopInstructions:
-                        self.teleopInstructions[button]()
-                except KeyError:
-                    self.telemetry.warn(f"Recieved an unknown teleop button: {name}")
-                    return
-            case _:
-                self.telemetry.warn(f"Recieved an unknown teleop input: {packet}")
+        for msg in packet.split(';'):
+            if msg == '' or msg is None or msg == '\n' or msg == ' ':
+                continue
+            msg = msg.replace('\n', '').replace(' ', '')
+            print()
+            match msg.split(",")[0]:
+                case "jstk":
+                    dctrls = msg.replace(';', '').replace('\n', '').split(',')[1:]
+                    try:
+                        self.teleopInstructions["joystick"](JoystickAxis.convertFromList(dctrls))
+                    except ValueError:
+                        self.telemetry.warn(f"Failed to decode joystick axies: {dctrls}")
+                        return
+                case "btn" | "te-btn":
+                    name = msg.replace(';', '').replace('\n', '').split(",")[1].upper()
+                    try:
+                        button = JoystickButton[name.replace("-", "_")]
+                        if button in self.teleopInstructions:
+                            self.teleopInstructions[button]()
+                    except KeyError:
+                        self.telemetry.warn(f"Recieved an unknown teleop button: {name}")
+                        return
+                case _:
+                    self.telemetry.warn(f"Recieved an unknown teleop input: {msg}")
     
     def registerButton(self, button: JoystickButton, func) -> None:
         self.teleopInstructions[button] = func
