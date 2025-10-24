@@ -1,0 +1,1 @@
+/usr/bin/g++ -g -Wl,--dependency-file=CMakeFiles/robot.dir/link.d CMakeFiles/robot.dir/main.cpp.o CMakeFiles/robot.dir/SPRK.cpp.o CMakeFiles/robot.dir/base/RobotBase.cpp.o CMakeFiles/robot.dir/base/Telemetry.cpp.o -o robot
