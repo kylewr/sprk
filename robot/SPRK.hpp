@@ -10,6 +10,8 @@ class SPRK : public RobotBase {
     public:
         SPRK(SocketManagerArgs* socketArgs);
         ~SPRK() = default;
+
+        void loop();
     
     private:    
         Drivetrain* drivetrain;

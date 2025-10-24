@@ -1,6 +1,6 @@
 #include "Telemetry.hpp"
 
-void RobotTelemetry::log(const std::string &message, LogLevel level)
+void RobotTelemetry::log(const std::string &message, LogLevel level, bool onlyConsole)
 {
     if (level == LogLevel::VERBOSE && !globalVerbose)
     {
@@ -34,7 +34,7 @@ void RobotTelemetry::log(const std::string &message, LogLevel level)
     {
         *consoleStream << consoleHeader << logStream.str() << _TERM_RESET << '\n';
     }
-    if (validSocket())
+    if (validSocket() && !onlyConsole)
     {
         socketSupplier(socketHeader + logStream.str());
     }

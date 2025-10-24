@@ -46,10 +46,15 @@ public:
     void closeSocket();
     bool sendMessage(const std::string &message);
 
+    bool hasConnection() const {
+        return connection != -1;
+    }
+
 private:
     SocketManagerArgs *socketArgs;
 
     int sockfd;
+    int connection {-1};
     struct sockaddr_in serverAddr;
     bool isInitialized{false};
 

@@ -11,10 +11,14 @@ int main() {
     // TODO: convert this into sprk args or smth
     SocketManagerArgs* socketArgs = new SocketManagerArgs();
 
-    socketArgs->ipAddress = "QuackStation";
+    socketArgs->ipAddress = "192.168.1.31";
     socketArgs->portNumber = 8008;
 
     robot = std::make_unique<SPRK>(socketArgs);
+
+    robot->loop();
+
+    std::cout << "Exiting main." << std::endl;
 
     // robot->getTelemetry().setGlobalVerbose(true);
 

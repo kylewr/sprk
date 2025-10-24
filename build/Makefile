@@ -177,6 +177,30 @@ base/RobotBase.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot.dir/build.make CMakeFiles/robot.dir/base/RobotBase.cpp.s
 .PHONY : base/RobotBase.cpp.s
 
+base/SocketManager.o: base/SocketManager.cpp.o
+.PHONY : base/SocketManager.o
+
+# target to build an object file
+base/SocketManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot.dir/build.make CMakeFiles/robot.dir/base/SocketManager.cpp.o
+.PHONY : base/SocketManager.cpp.o
+
+base/SocketManager.i: base/SocketManager.cpp.i
+.PHONY : base/SocketManager.i
+
+# target to preprocess a source file
+base/SocketManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot.dir/build.make CMakeFiles/robot.dir/base/SocketManager.cpp.i
+.PHONY : base/SocketManager.cpp.i
+
+base/SocketManager.s: base/SocketManager.cpp.s
+.PHONY : base/SocketManager.s
+
+# target to generate assembly for a file
+base/SocketManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot.dir/build.make CMakeFiles/robot.dir/base/SocketManager.cpp.s
+.PHONY : base/SocketManager.cpp.s
+
 base/Telemetry.o: base/Telemetry.cpp.o
 .PHONY : base/Telemetry.o
 
@@ -240,6 +264,9 @@ help:
 	@echo "... base/RobotBase.o"
 	@echo "... base/RobotBase.i"
 	@echo "... base/RobotBase.s"
+	@echo "... base/SocketManager.o"
+	@echo "... base/SocketManager.i"
+	@echo "... base/SocketManager.s"
 	@echo "... base/Telemetry.o"
 	@echo "... base/Telemetry.i"
 	@echo "... base/Telemetry.s"

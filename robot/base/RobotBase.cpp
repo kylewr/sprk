@@ -2,22 +2,26 @@
 #include <string>
 #include <iostream>
 
-RobotBase::RobotBase(SocketManagerArgs* socketArgs) : telemetry(RobotTelemetry()), socketManager(socketArgs)
+RobotBase::RobotBase(SocketManagerArgs* socketArgs) : socketManager(socketArgs), telemetry(RobotTelemetry())
 {
     telemetry.log("RobotBase initialized.", LogLevel::INFO);
     
     if (socketArgs != nullptr) {
         if (socketArgs->socketMessageHandler == nullptr) {
             socketArgs->socketMessageHandler = [this](const std::string& msg, LogLevel level) {
-                this->telemetry.log(msg, level);
+                this->telemetry.log(msg, level, true);
             };
         }
     }
     
     telemetry.setSocketSupplier([this](const std::string& msg) {
+        if (!this->socketManager.hasConnection()) {
+            return;
+        }
+
         bool success = this->socketManager.sendMessage(msg);
         if (!success) {
-            this->telemetry.log("Failed to send message over socket: " + msg, LogLevel::ERROR);
+            std::cout << "Failed to send message to socket: " << msg << '\n';
         }
     });
 

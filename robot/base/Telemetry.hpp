@@ -42,7 +42,7 @@ class RobotTelemetry {
             return globalVerbose;
         }
 
-        void log(const std::string& message, LogLevel level);
+        void log(const std::string& message, LogLevel level, bool onlyConsole = false);
 
         void logRobotState(RobotState state);
 

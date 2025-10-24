@@ -5,6 +5,7 @@ robot: \
   CMakeFiles/robot.dir/main.cpp.o \
   CMakeFiles/robot.dir/SPRK.cpp.o \
   CMakeFiles/robot.dir/base/RobotBase.cpp.o \
+  CMakeFiles/robot.dir/base/SocketManager.cpp.o \
   CMakeFiles/robot.dir/base/Telemetry.cpp.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
@@ -46,6 +47,8 @@ CMakeFiles/robot.dir/main.cpp.o:
 CMakeFiles/robot.dir/SPRK.cpp.o:
 
 CMakeFiles/robot.dir/base/RobotBase.cpp.o:
+
+CMakeFiles/robot.dir/base/SocketManager.cpp.o:
 
 CMakeFiles/robot.dir/base/Telemetry.cpp.o:
 

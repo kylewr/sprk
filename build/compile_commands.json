@@ -19,6 +19,12 @@
 },
 {
   "directory": "/root/sprk/build",
+  "command": "/usr/bin/g++  -I/root/sprk/robot/.. -I/root/sprk/robot -g -std=gnu++17 -Wall -Wextra -pedantic -o CMakeFiles/robot.dir/base/SocketManager.cpp.o -c /root/sprk/robot/base/SocketManager.cpp",
+  "file": "/root/sprk/robot/base/SocketManager.cpp",
+  "output": "CMakeFiles/robot.dir/base/SocketManager.cpp.o"
+},
+{
+  "directory": "/root/sprk/build",
   "command": "/usr/bin/g++  -I/root/sprk/robot/.. -I/root/sprk/robot -g -std=gnu++17 -Wall -Wextra -pedantic -o CMakeFiles/robot.dir/base/Telemetry.cpp.o -c /root/sprk/robot/base/Telemetry.cpp",
   "file": "/root/sprk/robot/base/Telemetry.cpp",
   "output": "CMakeFiles/robot.dir/base/Telemetry.cpp.o"

@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/root/sprk/robot/SPRK.cpp" "CMakeFiles/robot.dir/SPRK.cpp.o" "gcc" "CMakeFiles/robot.dir/SPRK.cpp.o.d"
   "/root/sprk/robot/base/RobotBase.cpp" "CMakeFiles/robot.dir/base/RobotBase.cpp.o" "gcc" "CMakeFiles/robot.dir/base/RobotBase.cpp.o.d"
+  "/root/sprk/robot/base/SocketManager.cpp" "CMakeFiles/robot.dir/base/SocketManager.cpp.o" "gcc" "CMakeFiles/robot.dir/base/SocketManager.cpp.o.d"
   "/root/sprk/robot/base/Telemetry.cpp" "CMakeFiles/robot.dir/base/Telemetry.cpp.o" "gcc" "CMakeFiles/robot.dir/base/Telemetry.cpp.o.d"
   "/root/sprk/robot/main.cpp" "CMakeFiles/robot.dir/main.cpp.o" "gcc" "CMakeFiles/robot.dir/main.cpp.o.d"
   "" "robot" "gcc" "CMakeFiles/robot.dir/link.d"
