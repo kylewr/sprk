@@ -14,6 +14,14 @@ SocketManager::SocketManager(SocketManagerArgs * args)
 
 SocketManager::~SocketManager()
 {
+    if (sockfd != -1) {
+        close(sockfd);
+    }
+
+    if (connection != -1) {
+        close(connection);
+    }
+
     delete socketArgs;
 }
 

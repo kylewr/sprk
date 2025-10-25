@@ -16,4 +16,7 @@ class SPRK : public RobotBase {
     private:    
         Drivetrain* drivetrain;
         Pinchers* pinchers;
+
+        void handleIncomingMessage(const std::string& msg);
+        void handleTeleopPacket(const std::string& packet);
 };

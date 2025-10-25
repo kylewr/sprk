@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.25)
 project(robot)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -20,6 +20,11 @@ list(APPEND SOURCES ${EXTRA_SOURCES})
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Full static linking for cross-compilation
+if(CMAKE_CROSSCOMPILING)
+    target_link_options(${PROJECT_NAME} PRIVATE -static)
+endif()
 
 # Include directories
 # Add parent directory so #include "robot/base/..." works correctly
