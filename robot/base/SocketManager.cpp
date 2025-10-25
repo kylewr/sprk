@@ -65,7 +65,7 @@ void SocketManager::socketListenerThread()
 {
     std::thread([this]() {
         while (this->initialized) {
-            std::cout << "\033[90mSocket listener thread started, waiting for connections.\033[0m\n";
+            std::cout << "\033[90mSocket listener thread started, waiting for connection to controller...\033[0m\n";
             int clientSock = accept(sockfd, nullptr, nullptr);
             this->connection = clientSock;
             if (clientSock >= 0) {
