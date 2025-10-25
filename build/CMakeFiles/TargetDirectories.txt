@@ -1,3 +1,0 @@
-/root/sprk/build/CMakeFiles/robot.dir
-/root/sprk/build/CMakeFiles/edit_cache.dir
-/root/sprk/build/CMakeFiles/rebuild_cache.dir
