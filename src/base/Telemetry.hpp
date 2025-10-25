@@ -1,25 +1,24 @@
 #pragma once
 
-#include <iostream>
 #include <chrono>
+#include <functional>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <functional>
-#include <memory>
 
 #include "RobotEnums.hpp"
 
-#define _TERM_RESET   "\033[0m"
-#define _TERM_RED     "\033[91m"
-#define _TERM_GREEN   "\033[92m"
-#define _TERM_YELLOW  "\033[93m"
-#define _TERM_BLUE    "\033[94m"
+#define _TERM_RESET "\033[0m"
+#define _TERM_RED "\033[91m"
+#define _TERM_GREEN "\033[92m"
+#define _TERM_YELLOW "\033[93m"
+#define _TERM_BLUE "\033[94m"
 #define _SOCKET_NEWLINE "%NL%"
-#define _SOCKET_RED  "%RED%"
-#define _SOCKET_GREEN  "%GREEN%"
-#define _SOCKET_YELLOW  "%YELLOW%"
-
+#define _SOCKET_RED "%RED%"
+#define _SOCKET_GREEN "%GREEN%"
+#define _SOCKET_YELLOW "%YELLOW%"
 
 class RobotTelemetry {
     public:
@@ -48,11 +47,14 @@ class RobotTelemetry {
 
     private:
         static std::stringstream getLogStream() {
-            auto now = std::chrono::system_clock::now();
+            auto now       = std::chrono::system_clock::now();
             auto in_time_t = std::chrono::system_clock::to_time_t(now);
             std::stringstream ss;
-            auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-            ss << '[' << std::put_time(std::localtime(&in_time_t), "%m/%d %X") << '.' << std::setfill('0') << std::setw(3) << milliseconds.count() << "] ";
+            auto milliseconds =
+                std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) %
+                1000;
+            ss << '[' << std::put_time(std::localtime(&in_time_t), "%m/%d %X") << '.'
+               << std::setfill('0') << std::setw(3) << milliseconds.count() << "] ";
             return ss;
         }
 
@@ -65,7 +67,7 @@ class RobotTelemetry {
         }
 
         std::ostream* consoleStream;
-        std::function<void(const std::string&)> socketSupplier; 
+        std::function<void(const std::string&)> socketSupplier;
 
         bool globalVerbose {false};
 };

@@ -18,8 +18,7 @@ class Subsystem {
         SubsystemTelemetry* getTelemetry() {
             return &telemetry;
         }
-    
+
     protected:
         SubsystemTelemetry telemetry;
-
 };

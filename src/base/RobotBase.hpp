@@ -1,17 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include <initializer_list>
+#include <memory>
+#include <vector>
 
+#include "RobotEnums.hpp"
 #include "SocketManager.hpp"
 #include "Subsystem.hpp"
-#include "RobotEnums.hpp"
 #include "Telemetry.hpp"
 
 class RobotBase {
     public:
-        RobotBase(SocketManagerArgs* socketArgs = nullptr);
+        RobotBase();
         ~RobotBase();
 
         void changeState(RobotState newState);
@@ -22,6 +22,10 @@ class RobotBase {
 
         void disabledInit();
 
+        RobotState getCurrentState() const {
+            return currentState;
+        }
+
         SocketManager& getSocketManager() {
             return socketManager;
         }
@@ -29,17 +33,23 @@ class RobotBase {
         RobotTelemetry& getTelemetry() {
             return telemetry;
         }
-    
+
     protected:
         bool alive {true};
 
+        SocketManagerArgs* socketArgs {nullptr};
         SocketManager socketManager;
 
-        RobotState currentState {RobotState::DISABLED};
         RobotTelemetry telemetry;
         std::vector<Subsystem*> subsystems;
 
         void addSubsystem(Subsystem* subsystem);
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
+        bool setSocketArguments(SocketManagerArgs* args);
+
+    private:
+        RobotState currentState {RobotState::DISABLED};
+
+        void initSocketArgs();
 };

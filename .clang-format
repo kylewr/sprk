@@ -1,0 +1,29 @@
+﻿---
+BasedOnStyle: LLVM
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Empty
+AccessModifierOffset: '0'
+AlignConsecutiveAssignments: 'true'
+BinPackArguments: 'true'
+BinPackParameters: 'true'
+ColumnLimit: '100'
+IndentAccessModifiers: 'true'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+InsertNewlineAtEOF: 'true'
+KeepEmptyLinesAtTheStartOfBlocks: 'false'
+LambdaBodyIndentation: Signature
+Language: Cpp
+NamespaceIndentation: All
+PointerAlignment: Left
+SortIncludes: 'true'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeCpp11BracedList: 'true'
+SpaceBeforeInheritanceColon: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: 'true'
+SpaceInEmptyParentheses: 'false'
+SpacesInCStyleCastParentheses: 'false'
+UseTab: Never
+
+...

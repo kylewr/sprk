@@ -4,7 +4,7 @@
         {
             "label": "Deploy & Run",
             "type": "shell",
-            "command": "./deploy.bat",
+            "command": "./deploy.sh",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
