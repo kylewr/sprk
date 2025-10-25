@@ -3,18 +3,16 @@
 #include <thread>
 
 #include "SPRK.hpp"
-#include "base/SocketManager.hpp"
 
 std::unique_ptr<SPRK> robot;
 
 int main() {
-    // TODO: convert this into sprk args or smth
-    SocketManagerArgs* socketArgs = new SocketManagerArgs();
+    SPRKArgs* args = new SPRKArgs();
 
-    socketArgs->ipAddress  = "0.0.0.0";
-    socketArgs->portNumber = 8008;
+    args->ipAddress = "0.0.0.0";
+    args->portNumber = 8008;
 
-    robot = std::make_unique<SPRK>(socketArgs);
+    robot = std::make_unique<SPRK>(args);
 
     robot->loop();
 

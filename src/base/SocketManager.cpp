@@ -5,7 +5,7 @@
 #include <sstream>
 #include <thread>
 
-SocketManager::SocketManager(SocketManagerArgs *args) {
+SocketManager::SocketManager(SocketManagerArgs* args) {
     if (args != nullptr) {
         setArgs(args);
     }
@@ -36,7 +36,7 @@ bool SocketManager::initializeSocket() {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(socketArgs->portNumber);
     serverAddr.sin_addr.s_addr = inet_addr(socketArgs->ipAddress.c_str());
-    bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
+    bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     listen(sockfd, 5);
 
     initialized = true;
@@ -46,9 +46,11 @@ bool SocketManager::initializeSocket() {
     return true;
 }
 
-void SocketManager::closeSocket() { initialized = false; }
+void SocketManager::closeSocket() {
+    initialized = false;
+}
 
-bool SocketManager::sendMessage(const std::string &message) {
+bool SocketManager::sendMessage(const std::string& message) {
     if (!initialized) {
         return false;
     }
@@ -65,17 +67,15 @@ void SocketManager::createListenerThread() {
     std::thread([this]() {
         while (this->initialized) {
             char ipStr[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, &(this->serverAddr.sin_addr), ipStr,
-                      INET_ADDRSTRLEN);
+            inet_ntop(AF_INET, &(this->serverAddr.sin_addr), ipStr, INET_ADDRSTRLEN);
             this->socketArgs->socketMessageHandler(
-                "Waiting for incoming connection on: " + std::string(ipStr) +
-                    ":" + std::to_string(ntohs(this->serverAddr.sin_port)),
+                "Waiting for incoming connection on: " + std::string(ipStr) + ":" +
+                    std::to_string(ntohs(this->serverAddr.sin_port)),
                 LogLevel::INFO);
             int clientSock = accept(sockfd, nullptr, nullptr);
             this->connection = clientSock;
             if (clientSock >= 0) {
-                this->socketArgs->socketMessageHandler("Client connected.",
-                                                       LogLevel::SUCCESS);
+                this->socketArgs->socketMessageHandler("Client connected.", LogLevel::SUCCESS);
 
                 if (this->onConnectCallback != nullptr) {
                     this->onConnectCallback();
@@ -84,22 +84,21 @@ void SocketManager::createListenerThread() {
                 while (this->initialized) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     char buffer[1024];
-                    int bytesRead =
-                        recv(clientSock, buffer, sizeof(buffer) - 1, 0);
+                    int bytesRead = recv(clientSock, buffer, sizeof(buffer) - 1, 0);
                     if (bytesRead > 0) {
                         buffer[bytesRead] = '\0'; // Null-terminate the string
                         std::string in = std::string(buffer);
 
                         this->socketArgs->incomingMessageHandler(in);
                     } else if (bytesRead == 0) {
-                        this->socketArgs->socketMessageHandler(
-                            "Client disconnected.", LogLevel::WARN);
+                        this->socketArgs->socketMessageHandler("Client disconnected.",
+                                                               LogLevel::WARN);
                         // close(this->sockfd);
                         this->connection = -1;
                         break;
                     } else {
-                        this->socketArgs->socketMessageHandler(
-                            "Error reading from socket.", LogLevel::ERROR);
+                        this->socketArgs->socketMessageHandler("Error reading from socket.",
+                                                               LogLevel::ERROR);
                         // close(this->sockfd);
                         this->connection = -1;
                         break;
@@ -107,8 +106,8 @@ void SocketManager::createListenerThread() {
                 }
 
             } else {
-                socketArgs->socketMessageHandler(
-                    "Failed to accept incoming connection.", LogLevel::ERROR);
+                socketArgs->socketMessageHandler("Failed to accept incoming connection.",
+                                                 LogLevel::ERROR);
             }
         }
         if (this->connection != -1) {

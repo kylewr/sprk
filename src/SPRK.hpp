@@ -9,6 +9,14 @@
 #include "subsystem/Drivetrain.hpp"
 #include "subsystem/Pinchers.hpp"
 
+class SPRKArgs {
+    public:
+        SPRKArgs() = default;
+
+        std::string ipAddress;
+        uint16_t portNumber;
+};
+
 class SPRK : public RobotBase {
     public:
         SPRK(SPRKArgs* args);
@@ -24,12 +32,4 @@ class SPRK : public RobotBase {
 
         void handleIncomingMessage(const std::string& msg);
         void handleTeleopPacket(const std::string& packet);
-};
-
-class SPRKArgs {
-    public:
-        SPRKArgs() = default;
-
-        std::string ipAddress;
-        uint16_t portNumber;
 };

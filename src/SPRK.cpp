@@ -2,12 +2,10 @@
 #include <algorithm>
 #include <thread>
 
-SPRK::SPRK(SPRKArgs* args) : RobotBase() {
-    sprkArgs = args;
-
+SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
     SocketManagerArgs* socketArgs = new SocketManagerArgs();
-    socketArgs->ipAddress         = sprkArgs->ipAddress;
-    socketArgs->portNumber        = sprkArgs->portNumber;
+    socketArgs->ipAddress = sprkArgs->ipAddress;
+    socketArgs->portNumber = sprkArgs->portNumber;
 
     socketArgs->incomingMessageHandler = [this](const std::string& msg) {
         this->handleIncomingMessage(msg);
@@ -27,7 +25,7 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase() {
     }
 
     drivetrain = new Drivetrain();
-    pinchers   = new Pinchers();
+    pinchers = new Pinchers();
 
     addSubsystem({drivetrain, pinchers});
 }
