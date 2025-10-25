@@ -1,7 +1,7 @@
 #pragma once
 
-#include "robot/base/RobotBase.hpp"
-#include "robot/base/SocketManager.hpp"
+#include "src/base/RobotBase.hpp"
+#include "src/base/SocketManager.hpp"
 
 #include "subsystem/Drivetrain.hpp"
 #include "subsystem/Pinchers.hpp"

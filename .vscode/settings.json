@@ -1,6 +1,6 @@
 {
     "C_Cpp.dimInactiveRegions": false,
-    "cmake.sourceDirectory": "/root/sprk/robot",
+    "cmake.sourceDirectory": "/root/sprk/src",
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
