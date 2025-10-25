@@ -20,10 +20,12 @@ CMakeFiles/robot.dir/SPRK.cpp.o: /root/sprk/robot/SPRK.cpp \
   /usr/include/asm-generic/socket.h \
   /usr/include/asm-generic/sockios.h \
   /usr/include/asm-generic/types.h \
+  /usr/include/c++/14/algorithm \
   /usr/include/c++/14/array \
   /usr/include/c++/14/backward/auto_ptr.h \
   /usr/include/c++/14/backward/binders.h \
   /usr/include/c++/14/bit \
+  /usr/include/c++/14/bits/algorithmfwd.h \
   /usr/include/c++/14/bits/align.h \
   /usr/include/c++/14/bits/alloc_traits.h \
   /usr/include/c++/14/bits/allocated_ptr.h \
@@ -86,10 +88,12 @@ CMakeFiles/robot.dir/SPRK.cpp.o: /root/sprk/robot/SPRK.cpp \
   /usr/include/c++/14/bits/std_abs.h \
   /usr/include/c++/14/bits/std_function.h \
   /usr/include/c++/14/bits/std_thread.h \
+  /usr/include/c++/14/bits/stl_algo.h \
   /usr/include/c++/14/bits/stl_algobase.h \
   /usr/include/c++/14/bits/stl_bvector.h \
   /usr/include/c++/14/bits/stl_construct.h \
   /usr/include/c++/14/bits/stl_function.h \
+  /usr/include/c++/14/bits/stl_heap.h \
   /usr/include/c++/14/bits/stl_iterator.h \
   /usr/include/c++/14/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/14/bits/stl_iterator_base_types.h \
@@ -103,6 +107,7 @@ CMakeFiles/robot.dir/SPRK.cpp.o: /root/sprk/robot/SPRK.cpp \
   /usr/include/c++/14/bits/string_view.tcc \
   /usr/include/c++/14/bits/stringfwd.h \
   /usr/include/c++/14/bits/this_thread_sleep.h \
+  /usr/include/c++/14/bits/uniform_int_dist.h \
   /usr/include/c++/14/bits/unique_ptr.h \
   /usr/include/c++/14/bits/unordered_map.h \
   /usr/include/c++/14/bits/uses_allocator.h \
@@ -146,6 +151,7 @@ CMakeFiles/robot.dir/SPRK.cpp.o: /root/sprk/robot/SPRK.cpp \
   /usr/include/c++/14/new \
   /usr/include/c++/14/ostream \
   /usr/include/c++/14/pstl/execution_defs.h \
+  /usr/include/c++/14/pstl/glue_algorithm_defs.h \
   /usr/include/c++/14/pstl/glue_memory_defs.h \
   /usr/include/c++/14/pstl/pstl_config.h \
   /usr/include/c++/14/ratio \
@@ -1460,9 +1466,9 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/x86_64-linux-gnu/c++/14/bits/atomic_word.h:
 
-/usr/include/c++/14/ext/alloc_traits.h:
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
 
-/usr/include/c++/14/debug/assertions.h:
+/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
 /usr/lib/linux/uapi/x86/asm/sockios.h:
 
@@ -1476,6 +1482,12 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/c++/14/cerrno:
 
+/usr/lib/gcc/x86_64-linux-gnu/14/include/stddef.h:
+
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+
+/usr/include/c++/14/bits/vector.tcc:
+
 /usr/include/c++/14/bits/uses_allocator_args.h:
 
 /usr/include/c++/14/bits/streambuf_iterator.h:
@@ -1485,8 +1497,6 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 /usr/include/c++/14/bits/stl_iterator_base_types.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/c++/14/bits/stl_iterator_base_funcs.h:
 
@@ -1502,15 +1512,11 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/asm-generic/errno-base.h:
 
+/usr/include/c++/14/functional:
+
 /usr/include/c++/14/bits/this_thread_sleep.h:
 
 /usr/include/c++/14/bits/invoke.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/14/include/stddef.h:
-
-/usr/include/c++/14/bits/vector.tcc:
-
-/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
 /usr/include/c++/14/pstl/pstl_config.h:
 
@@ -1570,6 +1576,10 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/c++/14/bits/parse_numbers.h:
 
+/usr/include/features.h:
+
+/usr/include/c++/14/bits/node_handle.h:
+
 /usr/include/c++/14/bits/memoryfwd.h:
 
 /usr/include/c++/14/bits/memory_resource.h:
@@ -1584,29 +1594,9 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/c++/14/bits/locale_facets_nonio.h:
 
-/usr/include/c++/14/bits/stl_uninitialized.h:
-
-/usr/include/x86_64-linux-gnu/bits/endianness.h:
-
-/usr/include/c++/14/bits/atomic_base.h:
-
-/usr/include/arpa/inet.h:
-
-/usr/include/x86_64-linux-gnu/bits/long-double.h:
+/usr/include/x86_64-linux-gnu/bits/types/time_t.h:
 
 /usr/include/c++/14/bits/allocator.h:
-
-/usr/include/c++/14/bits/atomic_lockfree_defines.h:
-
-/root/sprk/robot/base/SocketManager.cpp:
-
-/usr/include/c++/14/bits/std_abs.h:
-
-/usr/include/linux/sched/types.h:
-
-/usr/include/asm-generic/socket.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
 
 /usr/include/c++/14/bits/alloc_traits.h:
 
@@ -1624,9 +1614,21 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/x86_64-linux-gnu/bits/socket_type.h:
 
+/usr/include/arpa/inet.h:
+
+/usr/include/c++/14/bits/atomic_base.h:
+
+/usr/include/x86_64-linux-gnu/bits/long-double.h:
+
 /usr/include/c++/14/array:
 
 /root/sprk/robot/subsystem/Pinchers.hpp:
+
+/usr/lib/x86_64-linux-gnu/crtn.o:
+
+/usr/include/x86_64-linux-gnu/bits/waitflags.h:
+
+/usr/include/c++/14/bits/hash_bytes.h:
 
 /usr/include/c++/14/bits/char_traits.h:
 
@@ -1642,6 +1644,18 @@ CMakeFiles/robot.dir/base/RobotBase.cpp.o:
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
+/usr/include/asm-generic/socket.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+
+/usr/include/c++/14/bits/atomic_lockfree_defines.h:
+
+/root/sprk/robot/base/SocketManager.cpp:
+
+/usr/include/c++/14/bits/std_abs.h:
+
+/usr/include/linux/sched/types.h:
+
 CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/c++/14/cstdlib:
@@ -1651,10 +1665,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/asm-generic/posix_types.h:
 
 /usr/include/stdc-predef.h:
-
-/usr/include/c++/14/bits/ostream_insert.h:
-
-/usr/include/c++/14/bits/stl_pair.h:
 
 /usr/lib/linux/uapi/x86/asm/posix_types_64.h:
 
@@ -1668,25 +1678,29 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/c++/14/backward/binders.h:
 
-/usr/include/x86_64-linux-gnu/sys/socket.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
-
-/usr/include/c++/14/debug/debug.h:
-
-/usr/include/errno.h:
-
 /usr/include/c++/14/bits/version.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so:
-
-/root/sprk/robot/base/RobotBase.hpp:
-
-/usr/include/x86_64-linux-gnu/bits/types/time_t.h:
 
 /usr/include/c++/14/cwchar:
 
 /usr/include/c++/14/stdexcept:
+
+/usr/include/c++/14/bits/stringfwd.h:
+
+/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+
+/usr/include/c++/14/bits/locale_facets.tcc:
+
+/usr/lib/linux/uapi/x86/asm/errno.h:
+
+/usr/include/stdio.h:
+
+/usr/include/c++/14/bits/exception_ptr.h:
+
+/usr/lib/x86_64-linux-gnu/crti.o:
+
+/usr/include/c++/14/bits/stl_heap.h:
+
+/root/sprk/robot/base/SocketManager.hpp:
 
 /usr/include/c++/14/bits/cpp_type_traits.h:
 
@@ -1698,20 +1712,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/stdint.h:
 
-/usr/include/c++/14/bits/ostream.tcc:
-
-/usr/include/c++/14/bits/concept_check.h:
-
-/usr/include/c++/14/bits/align.h:
-
-/usr/include/c++/14/ext/aligned_buffer.h:
-
-/usr/include/c++/14/new:
-
-/usr/include/c++/14/bits/stl_tempbuf.h:
-
-/usr/include/linux/stddef.h:
-
 /usr/lib/gcc/x86_64-linux-gnu/14/libgcc_s.so:
 
 /usr/include/c++/14/bits/chrono.h:
@@ -1722,7 +1722,21 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /root/sprk/robot/subsystem/Drivetrain.hpp:
 
+/usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so:
+
+/root/sprk/robot/base/RobotBase.hpp:
+
+/usr/include/c++/14/algorithm:
+
+/usr/include/c++/14/istream:
+
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/include/stdlib.h:
+
+/root/sprk/robot/base/Telemetry.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
@@ -1734,8 +1748,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/asm-generic/int-ll64.h:
 
-/usr/include/c++/14/bits/exception_ptr.h:
-
 /usr/include/c++/14/bits/cxxabi_init_exception.h:
 
 /usr/include/c++/14/string_view:
@@ -1743,6 +1755,10 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/c++/14/bits/std_function.h:
 
 /usr/include/c++/14/bits/enable_special_members.h:
+
+/usr/include/c++/14/bits/stl_pair.h:
+
+/usr/include/c++/14/bits/ostream_insert.h:
 
 /usr/include/c++/14/cctype:
 
@@ -1752,11 +1768,15 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/c++/14/bits/utility.h:
 
-/usr/include/libintl.h:
+/usr/include/linux/posix_types.h:
+
+/usr/include/c++/14/bits/stl_uninitialized.h:
 
 /usr/include/c++/14/bits/locale_classes.tcc:
 
-/usr/include/linux/posix_types.h:
+/usr/include/libintl.h:
+
+/usr/include/x86_64-linux-gnu/bits/endianness.h:
 
 /usr/include/c++/14/bits/stl_raw_storage_iter.h:
 
@@ -1769,6 +1789,8 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /lib/x86_64-linux-gnu/libc.so.6:
 
 /usr/include/c++/14/pstl/glue_memory_defs.h:
+
+/usr/include/c++/14/bits/uniform_int_dist.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
@@ -1788,6 +1810,10 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
+/usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
+
+/usr/include/c++/14/bits/exception_defines.h:
+
 /usr/include/x86_64-linux-gnu/bits/locale.h:
 
 /usr/include/c++/14/cwctype:
@@ -1802,21 +1828,41 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/c++/14/bits/codecvt.h:
 
+/usr/include/c++/14/bits/algorithmfwd.h:
+
 /usr/include/c++/14/bits/istream.tcc:
 
-/usr/include/c++/14/bits/stringfwd.h:
+/usr/include/c++/14/debug/assertions.h:
 
-/usr/lib/x86_64-linux-gnu/crti.o:
+/usr/include/x86_64-linux-gnu/sys/socket.h:
 
-/root/sprk/robot/base/SocketManager.hpp:
+/usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 
-/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+/usr/include/c++/14/debug/debug.h:
 
-/usr/include/c++/14/bits/locale_facets.tcc:
+/usr/include/errno.h:
 
-/usr/lib/linux/uapi/x86/asm/errno.h:
+/usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
-/usr/include/stdio.h:
+/usr/include/c++/14/chrono:
+
+/usr/include/c++/14/exception:
+
+/usr/include/c++/14/bits/ostream.tcc:
+
+/usr/include/c++/14/bits/concept_check.h:
+
+/usr/include/c++/14/bits/align.h:
+
+/usr/include/c++/14/ext/aligned_buffer.h:
+
+/usr/include/c++/14/new:
+
+/usr/include/c++/14/bits/stl_tempbuf.h:
+
+/usr/include/linux/stddef.h:
+
+/usr/include/c++/14/ext/alloc_traits.h:
 
 /usr/include/c++/14/ext/atomicity.h:
 
@@ -1825,12 +1871,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/c++/14/ext/string_conversions.h:
 
 /usr/include/c++/14/ext/type_traits.h:
-
-/usr/include/c++/14/functional:
-
-/usr/include/c++/14/bits/node_handle.h:
-
-/usr/include/features.h:
 
 /usr/include/c++/14/limits:
 
@@ -1842,20 +1882,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
-/usr/include/c++/14/istream:
-
-/lib/x86_64-linux-gnu/libmvec.so.1:
-
-/root/sprk/robot/base/Telemetry.hpp:
-
-/usr/include/stdlib.h:
-
-/usr/include/c++/14/exception:
-
-/usr/include/c++/14/chrono:
-
-/usr/include/x86_64-linux-gnu/bits/wordsize.h:
-
 /usr/include/c++/14/bits/stl_function.h:
 
 /usr/include/c++/14/memory:
@@ -1863,6 +1889,8 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/x86_64-linux-gnu/bits/sched.h:
 
 /usr/include/c++/14/ratio:
+
+/usr/include/c++/14/bits/stl_algo.h:
 
 /root/sprk/robot/SPRK.cpp:
 
@@ -1875,8 +1903,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/c++/14/tuple:
 
 /usr/include/c++/14/type_traits:
-
-/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
 /usr/lib/x86_64-linux-gnu/Scrt1.o:
 
@@ -1982,6 +2008,8 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
+/usr/include/c++/14/pstl/glue_algorithm_defs.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
@@ -1991,10 +2019,6 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
-
-/usr/include/c++/14/bits/exception_defines.h:
-
-/usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/include/stdarg.h:
 
@@ -2015,9 +2039,3 @@ CMakeFiles/robot.dir/SPRK.cpp.o:
 /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
-
-/usr/lib/x86_64-linux-gnu/crtn.o:
-
-/usr/include/c++/14/bits/hash_bytes.h:
-
-/usr/include/x86_64-linux-gnu/bits/waitflags.h:

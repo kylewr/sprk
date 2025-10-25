@@ -223,4 +223,9 @@ CMakeFiles/robot.dir/SPRK.cpp.o: /root/sprk/robot/SPRK.cpp \
  /root/sprk/robot/subsystem/Drivetrain.hpp \
  /root/sprk/robot/subsystem/Pinchers.hpp /usr/include/c++/14/thread \
  /usr/include/c++/14/bits/std_thread.h \
- /usr/include/c++/14/bits/this_thread_sleep.h
+ /usr/include/c++/14/bits/this_thread_sleep.h \
+ /usr/include/c++/14/algorithm /usr/include/c++/14/bits/stl_algo.h \
+ /usr/include/c++/14/bits/algorithmfwd.h \
+ /usr/include/c++/14/bits/stl_heap.h \
+ /usr/include/c++/14/bits/uniform_int_dist.h \
+ /usr/include/c++/14/pstl/glue_algorithm_defs.h

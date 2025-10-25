@@ -1,17 +1,58 @@
 #include "SPRK.hpp"
 #include <thread>
+#include <algorithm>
 
-SPRK::SPRK(SocketManagerArgs* socketArgs) : RobotBase(socketArgs)
+SPRK::SPRK(SocketManagerArgs *socketArgs) : RobotBase(socketArgs)
 {
-    socketArgs->incomingMessageHandler = [this](const std::string& msg) {
-        this->telemetry.log("Incoming message: " + msg, LogLevel::INFO);
+    socketArgs->incomingMessageHandler = [this](const std::string &msg)
+    {
+        if (msg.compare(0, 4, "exit") == 0)
+        {
+            this->socketManager.closeSocket();
+            this->changeState(RobotState::DISABLED);
+            this->alive = false;
+        }
+        else if (msg.compare(0, 5, "init,") == 0) {
+            std::string controllerVersion = msg.substr(5);
+            
+            this->telemetry.log("Received init command from controller.", LogLevel::INFO);
+            this->telemetry.log("Controller version: " + controllerVersion, LogLevel::SUCCESS);
+
+            std::string response = "[ROBOTINFO] \nSPRK Robot v1.0 Initialized.\n";
+            this->socketManager.sendMessage(response);
+        }
+        else if (msg.compare(0, 4, "tele") == 0)
+        {
+            this->changeState(RobotState::TELEOP);
+        }
+        else if (msg.compare(0, 4, "auto") == 0)
+        {
+            this->changeState(RobotState::AUTONOMOUS);
+        }
+        else if (msg.compare(0, 3, "dis") == 0)
+        {
+            this->changeState(RobotState::DISABLED);
+        }
+        else if (msg.compare(0, 3, "te-") == 0) {
+            // handle teleop packets here
+        }
+        else
+        {
+            this->telemetry.log("Unknown incoming message: " + msg, LogLevel::ERROR);
+        }
     };
 
+    socketManager.onConnect([this]()
+                            { this->changeState(RobotState::DISABLED); });
+
     bool success = socketManager.initializeSocket();
-    if (!success) {
-        std::cout << "Socket initialized unsuccessfully.\n";
-    } else {
-        std::cout << "Socket initialized successfully.\n";
+    if (!success)
+    {
+        telemetry.log("Failed to initialize socket.", LogLevel::ERROR, true);
+    }
+    else
+    {
+        telemetry.log("Socket initialized successfully.", LogLevel::SUCCESS, true);
     }
 
     drivetrain = new Drivetrain();
@@ -22,10 +63,13 @@ SPRK::SPRK(SocketManagerArgs* socketArgs) : RobotBase(socketArgs)
 
 void SPRK::loop()
 {
-    while (alive) {
-        // Main loop logic here
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    while (alive)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-        telemetry.log("SPRK main loop iteration. Meow.", LogLevel::INFO);
+        if (currentState == RobotState::TELEOP) {
+            telemetry.log("SPRK main loop iteration. Meow.", LogLevel::WARN);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1989));
+        }
     }
 }

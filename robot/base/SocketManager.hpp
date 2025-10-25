@@ -34,7 +34,7 @@ public:
 
     bool setArgs(SocketManagerArgs *args)
     {
-        if (isInitialized)
+        if (initialized)
         {
             return false;
         }
@@ -46,8 +46,16 @@ public:
     void closeSocket();
     bool sendMessage(const std::string &message);
 
+    bool isInitialized() const {
+        return initialized;
+    }
+
     bool hasConnection() const {
         return connection != -1;
+    }
+
+    void onConnect(std::function<void()> callback) {
+        onConnectCallback = callback;
     }
 
 private:
@@ -56,7 +64,9 @@ private:
     int sockfd;
     int connection {-1};
     struct sockaddr_in serverAddr;
-    bool isInitialized{false};
+    bool initialized{false};
+
+    std::function<void()> onConnectCallback {nullptr};
 
     void socketListenerThread();
 };

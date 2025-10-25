@@ -20,7 +20,7 @@ RobotBase::RobotBase(SocketManagerArgs* socketArgs) : socketManager(socketArgs),
         }
 
         bool success = this->socketManager.sendMessage(msg);
-        if (!success) {
+        if (!success && this->socketManager.isInitialized()) {
             std::cout << "Failed to send message to socket: " << msg << '\n';
         }
     });
@@ -43,7 +43,7 @@ RobotBase::~RobotBase()
 void RobotBase::changeState(RobotState newState)
 {
     currentState = newState;
-    telemetry.logRobotState(newState);
+    telemetry.logRobotState(newState); // also reports the state to the controller
 
     switch (newState)
     {

@@ -35,7 +35,7 @@ bool SocketManager::initializeSocket()
     bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     listen(sockfd, 5);
 
-    isInitialized = true;
+    initialized = true;
 
     socketListenerThread();
 
@@ -44,12 +44,12 @@ bool SocketManager::initializeSocket()
 
 void SocketManager::closeSocket()
 {
-    isInitialized = false;
+    initialized = false;
 }
 
 bool SocketManager::sendMessage(const std::string &message)
 {
-    if (!isInitialized) {
+    if (!initialized) {
         return false;
     }
 
@@ -64,20 +64,25 @@ bool SocketManager::sendMessage(const std::string &message)
 void SocketManager::socketListenerThread()
 {
     std::thread([this]() {
-        while (this->isInitialized) {
+        while (this->initialized) {
             std::cout << "\033[90mSocket listener thread started, waiting for connections.\033[0m\n";
             int clientSock = accept(sockfd, nullptr, nullptr);
             this->connection = clientSock;
             if (clientSock >= 0) {
                 this->socketArgs->socketMessageHandler("Client connected.", LogLevel::SUCCESS);
-                while (this->isInitialized) {
+
+                if (this->onConnectCallback != nullptr) {
+                    this->onConnectCallback();
+                }
+
+                while (this->initialized) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     char buffer[1024];
                     int bytesRead = recv(clientSock, buffer, sizeof(buffer) - 1, 0);
                     if (bytesRead > 0) {
                         buffer[bytesRead] = '\0';  // Null-terminate the string
                         std::string in = std::string(buffer);
-                        this->socketArgs->socketMessageHandler("Received message: " + in, LogLevel::INFO);
+                        
                         this->socketArgs->incomingMessageHandler(in);
                     } else if (bytesRead == 0) {
                         this->socketArgs->socketMessageHandler("Client disconnected.", LogLevel::WARN);
@@ -91,9 +96,14 @@ void SocketManager::socketListenerThread()
                         break;
                     }
                 }
+                
             } else {
                 socketArgs->socketMessageHandler("Failed to accept incoming connection.", LogLevel::ERROR);
             }
+        }
+        if (this->connection != -1) {
+            close(this->sockfd);
+            this->connection = -1;
         }
     }).detach();
 }

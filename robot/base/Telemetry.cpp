@@ -47,6 +47,10 @@ void RobotTelemetry::logRobotState(RobotState state)
     }
 
     *consoleStream << _TERM_BLUE << getLogStream().str() <<  "Robot changed state: " << _TERM_RESET << robotStateToString(state) << '\n';
+
+    if (validSocket()) {
+        socketSupplier("[STATE] " + robotStateOverSocket(state));
+    }
 }
 
 void SubsystemTelemetry::provideRobotTelemetry(RobotTelemetry *telemetry)
