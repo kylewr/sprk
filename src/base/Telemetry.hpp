@@ -11,6 +11,7 @@
 #include "RobotEnums.hpp"
 
 #define _TERM_RESET "\033[0m"
+#define _TERM_GRAY "\033[90m"
 #define _TERM_RED "\033[91m"
 #define _TERM_GREEN "\033[92m"
 #define _TERM_YELLOW "\033[93m"

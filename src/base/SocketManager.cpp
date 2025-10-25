@@ -33,6 +33,9 @@ bool SocketManager::initializeSocket() {
         return false;
     }
 
+    int opt = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(socketArgs->portNumber);
     serverAddr.sin_addr.s_addr = inet_addr(socketArgs->ipAddress.c_str());
@@ -71,7 +74,7 @@ void SocketManager::createListenerThread() {
             this->socketArgs->socketMessageHandler(
                 "Waiting for incoming connection on: " + std::string(ipStr) + ":" +
                     std::to_string(ntohs(this->serverAddr.sin_port)),
-                LogLevel::INFO);
+                LogLevel::SPECIAL_GRAY);
             int clientSock = accept(sockfd, nullptr, nullptr);
             this->connection = clientSock;
             if (clientSock >= 0) {

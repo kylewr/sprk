@@ -1,6 +1,9 @@
 #include "SPRK.hpp"
+
 #include <algorithm>
 #include <thread>
+
+#include "base/RobotHelpers.hpp"
 
 SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
     SocketManagerArgs* socketArgs = new SocketManagerArgs();
@@ -20,8 +23,6 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
     bool success = socketManager.initializeSocket();
     if (!success) {
         telemetry.log("Failed to initialize socket.", LogLevel::ERROR, true);
-    } else {
-        telemetry.log("Socket initialized successfully.", LogLevel::SUCCESS, true);
     }
 
     drivetrain = new Drivetrain();
@@ -49,12 +50,17 @@ void SPRK::handleIncomingMessage(const std::string& msg) {
     } else if (msg.compare(0, 5, "init,") == 0) {
         std::string controllerVersion = msg.substr(5);
 
-        this->telemetry.log("Received init command from controller.", LogLevel::INFO);
-        this->telemetry.log("Controller version: " + controllerVersion, LogLevel::SUCCESS);
+        RobotInfoArgs* infoArgs = new RobotInfoArgs();
+        infoArgs->message = "Welcome to the C++ SPRK Robot!";
+        infoArgs->autons = this->getAutonNames();
+        infoArgs->flags.push_back(RobotFlags::CAMERA);
 
-        std::string response = "[ROBOTINFO] \nSPRK Robot v1.0 "
-                               "Initialized.[SIG][AUTONS]Meow,Meow2[SIG][FLAGS],camera,\n";
-        this->socketManager.sendMessage(response);
+        this->informControllerInit(infoArgs);
+
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(50)); // Sleep for 50ms to ensure message is sent
+
+        this->telemetry.log("Received controller version: " + controllerVersion, LogLevel::INFO);
     } else if (msg.compare(0, 4, "tele") == 0) {
         this->changeState(RobotState::TELEOP);
     } else if (msg.compare(0, 4, "auto") == 0) {

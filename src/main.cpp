@@ -9,8 +9,8 @@ std::unique_ptr<SPRK> robot;
 int main() {
     SPRKArgs* args = new SPRKArgs();
 
-    args->ipAddress = "0.0.0.0";
-    args->portNumber = 8008;
+    args->ipAddress = "192.168.1.31";
+    args->portNumber = 8007;
 
     robot = std::make_unique<SPRK>(args);
 

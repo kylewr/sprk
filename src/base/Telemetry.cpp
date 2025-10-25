@@ -8,7 +8,7 @@ void RobotTelemetry::log(const std::string& message, LogLevel level, bool onlyCo
     std::stringstream logStream = getLogStream();
     logStream << message;
 
-    std::string consoleHeader {};
+    std::string consoleHeader {_TERM_RESET};
     std::string socketHeader {_SOCKET_NEWLINE};
     switch (level) {
         case LogLevel::SUCCESS:
@@ -22,6 +22,9 @@ void RobotTelemetry::log(const std::string& message, LogLevel level, bool onlyCo
         case LogLevel::ERROR:
             consoleHeader = _TERM_RED;
             socketHeader += _SOCKET_RED;
+            break;
+        case LogLevel::SPECIAL_GRAY:
+            consoleHeader = _TERM_GRAY;
             break;
         default:
             break;

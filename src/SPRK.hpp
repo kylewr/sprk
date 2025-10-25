@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "src/base/RobotBase.hpp"
 #include "src/base/SocketManager.hpp"
@@ -23,6 +24,10 @@ class SPRK : public RobotBase {
         ~SPRK() = default;
 
         void loop();
+
+        std::vector<std::string> getAutonNames() const {
+            return {"MeowAuton1", "MeowAuton2"};
+        }
 
     private:
         SPRKArgs* sprkArgs;

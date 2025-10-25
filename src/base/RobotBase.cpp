@@ -1,4 +1,6 @@
 #include "RobotBase.hpp"
+
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -64,6 +66,7 @@ void RobotBase::addSubsystem(std::initializer_list<Subsystem*> newSubsystems) {
 }
 
 bool RobotBase::setSocketArguments(SocketManagerArgs* args) {
+    socketArgs = args;
     bool status = socketManager.setArgs(args);
     if (!status) {
         telemetry.log("Failed to set socket arguments; socket already initialized.",
@@ -72,6 +75,26 @@ bool RobotBase::setSocketArguments(SocketManagerArgs* args) {
         initSocketArgs();
     }
     return status;
+}
+
+void RobotBase::informControllerInit(RobotInfoArgs* args) {
+    if (args == nullptr) {
+        telemetry.log("RobotInfoArgs is null; cannot inform controller of init.", LogLevel::ERROR);
+        return;
+    }
+    if (socketManager.hasConnection()) {
+        if (isSimulation() && std::find(args->flags.begin(), args->flags.end(),
+                                        RobotFlags::SIMULATION) == args->flags.end()) {
+            args->flags.push_back(RobotFlags::SIMULATION);
+        }
+
+        bool success = socketManager.sendMessage(args->str());
+        if (!success) {
+            telemetry.log("Failed to send RobotInfoArgs to controller.", LogLevel::ERROR);
+        }
+    } else {
+        telemetry.log("No socket connection; cannot inform controller of init.", LogLevel::WARN);
+    }
 }
 
 void RobotBase::initSocketArgs() {

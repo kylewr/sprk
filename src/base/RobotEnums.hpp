@@ -28,10 +28,24 @@ inline std::string robotStateOverSocket(RobotState state) {
     return stateToSocketString.at(state);
 }
 
+enum class RobotFlags {
+    CAMERA,
+    SIMULATION,
+};
+
+inline std::string robotFlagToString(RobotFlags flag) {
+    static const std::unordered_map<RobotFlags, std::string> flagToString {
+        {RobotFlags::CAMERA, "camera"},
+        {RobotFlags::SIMULATION, "sim"},
+    };
+    return flagToString.at(flag);
+}
+
 enum class LogLevel {
     VERBOSE,
     INFO,
     SUCCESS,
     WARN,
     ERROR,
+    SPECIAL_GRAY,
 };

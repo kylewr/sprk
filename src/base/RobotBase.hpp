@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "RobotEnums.hpp"
+#include "RobotHelpers.hpp"
 #include "SocketManager.hpp"
 #include "Subsystem.hpp"
 #include "Telemetry.hpp"
@@ -25,6 +26,10 @@ class RobotBase {
         RobotState getCurrentState() const {
             return currentState;
         }
+        
+        bool isSimulation() const {
+            return simulation;
+        }
 
         SocketManager& getSocketManager() {
             return socketManager;
@@ -36,6 +41,7 @@ class RobotBase {
 
     protected:
         bool alive {true};
+        bool simulation {false};
 
         SocketManagerArgs* socketArgs {nullptr};
         SocketManager socketManager;
@@ -47,6 +53,8 @@ class RobotBase {
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
         bool setSocketArguments(SocketManagerArgs* args);
+
+        void informControllerInit(RobotInfoArgs* args);
 
     private:
         RobotState currentState {RobotState::DISABLED};
