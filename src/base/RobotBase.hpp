@@ -27,6 +27,10 @@ class RobotBase {
             return currentState;
         }
         
+        bool isAlive() const {
+            return alive;
+        }
+
         bool isSimulation() const {
             return simulation;
         }
