@@ -53,6 +53,12 @@ void RobotBase::changeState(RobotState newState) {
     telemetry.logRobotState(newState); // also reports the state to the controller
 }
 
+void RobotBase::run() {
+    while (isAlive()) {
+        loop();
+    }
+}
+
 void RobotBase::setInfoArgs(RobotInfoArgs* args) {
     if (infoArgs == nullptr) {
         infoArgs = args;

@@ -15,16 +15,11 @@
 class RobotBase {
     public:
         RobotBase();
-        ~RobotBase();
+        virtual ~RobotBase();
 
-        void changeState(RobotState newState);
+        virtual void changeState(RobotState newState) final;
 
-        virtual void loop() {
-            // default does nothing
-            while (alive) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(20));
-            }
-        };
+        virtual void run() final;
 
         virtual bool autonomousInit() {
             return true;
@@ -36,15 +31,15 @@ class RobotBase {
 
         virtual void disabledInit() {};
 
-        RobotState getCurrentState() const {
+        virtual RobotState getCurrentState() const final {
             return currentState;
         }
 
-        bool isAlive() const {
+        virtual bool isAlive() const final {
             return alive;
         }
 
-        bool isSimulation() const {
+        virtual bool isSimulation() const final {
             return simulation;
         }
 
@@ -68,10 +63,10 @@ class RobotBase {
 
         std::unordered_map<JoystickButton, std::function<void()>> teleopInstructions {};
 
-        RobotInfoArgs* getInfoArgs() const {
+        virtual RobotInfoArgs* getInfoArgs() const final {
             return infoArgs;
         }
-        void setInfoArgs(RobotInfoArgs* args);
+        virtual void setInfoArgs(RobotInfoArgs* args) final;
 
         void addSubsystem(Subsystem* subsystem);
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
@@ -80,6 +75,11 @@ class RobotBase {
 
         virtual void handleTeleopPacket(const std::string& packet);
         virtual void addJoystickButtons() {};
+
+        virtual void loop() {
+            // default does nothing
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        };
 
     private:
         RobotInfoArgs* infoArgs {nullptr};

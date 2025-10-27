@@ -23,12 +23,10 @@ class SPRKArgs {
         uint16_t portNumber;
 };
 
-class SPRK : public RobotBase {
+class SPRK final : public RobotBase {
     public:
         SPRK(SPRKArgs* args);
         ~SPRK() = default;
-
-        void loop() override;
 
         // bool autonomousInit() override;
         // bool teleopInit() override;
@@ -50,6 +48,8 @@ class SPRK : public RobotBase {
         Pinchers* pinchers;
 
         SerialInterface* serialInterface;
+
+        void loop() override;
 
         void addJoystickButtons() override;
         // void handleTeleopPacket(const std::string& packet) override;

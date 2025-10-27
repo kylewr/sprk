@@ -14,7 +14,7 @@ int main() {
 
     robot = std::make_unique<SPRK>(args);
 
-    robot->loop();
+    robot->run();
     
     return 0;
 }
