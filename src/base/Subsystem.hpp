@@ -19,6 +19,10 @@ class Subsystem {
             return &telemetry;
         }
 
+        virtual void log(const std::string& message, LogLevel level) {
+            telemetry.log(message, level);
+        }
+
         virtual void changedState(RobotState) {}
 
     protected:

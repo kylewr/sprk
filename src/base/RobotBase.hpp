@@ -62,7 +62,7 @@ class RobotBase {
         RobotTelemetry telemetry;
         std::vector<Subsystem*> subsystems;
 
-        InternalJoystick* internalJoystick {nullptr}; // for now only one
+        SocketJoystick* joystick {nullptr}; // for now only one
 
         virtual RobotInfoArgs* getInfoArgs() const final {
             return infoArgs;
@@ -74,8 +74,8 @@ class RobotBase {
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
         // idk what the fuck im doing here lowkey
-        virtual void registerInternalJoystick(InternalJoystick* joystick) final {
-            internalJoystick = joystick;
+        virtual void registerJoystick(SocketJoystick* joystick) final {
+            this->joystick = joystick;
         };
 
         virtual void handleTeleopPacket(const std::string& packet);

@@ -8,7 +8,7 @@
 #include "base/simulation/SerialSimulation.hpp"
 
 SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
-    registerInternalJoystick(new InternalXBoxController());
+    registerJoystick(new SocketXBoxController());
 
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
     infoArgs->message = "Welcome to the C++ SPRK Robot!";
@@ -69,16 +69,23 @@ void SPRK::loop() {
 }
 
 void SPRK::addJoystickButtons() {
+    Trigger::create(joystick->buttonEvent(JoystickButton::START))
+        .onTrue([&telem = this->telemetry]() {
+            telem.log("Enabling verbose logging.", LogLevel::INFO);
+            telem.setGlobalVerbose(true);
+        })
+        .onFalse([&telem = this->telemetry]() {
+            telem.log("Disabling verbose logging.", LogLevel::INFO);
+            telem.setGlobalVerbose(false);
+        });
 
-    Trigger::create([&c = this->internalJoystick]() {
-        return c->getButton(JoystickButton::LEFTSHOULDER);
-    })
-        .onTrue([&tm = this->telemetry, &arm = this->arm]() {
-            tm.log("LEFTSHOULDER pressed; moving turret CW.", LogLevel::INFO);
+    Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
+        .onTrue([&arm = this->arm]() {
+            arm->log("Moving turret CW.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::CW);
         })
-        .onFalse([&tm = this->telemetry, &arm = this->arm]() {
-            tm.log("LEFTSHOULDER unpressed; stopping turret.", LogLevel::INFO);
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping turret.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::STOP);
         });
 }

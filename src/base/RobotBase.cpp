@@ -20,9 +20,9 @@ RobotBase::~RobotBase() {
         changeState(RobotState::DISABLED);
     }
 
-    if (internalJoystick != nullptr) {
-        delete internalJoystick;
-        internalJoystick = nullptr;
+    if (joystick != nullptr) {
+        delete joystick;
+        joystick = nullptr;
     }
 
     for (Subsystem* subsystem : subsystems) {
@@ -59,7 +59,7 @@ void RobotBase::changeState(RobotState newState) {
 }
 
 void RobotBase::run() {
-    if (internalJoystick == nullptr) {
+    if (joystick == nullptr) {
         telemetry.log("No controller registered to RobotBase; teleop inputs will be ignored.",
                       LogLevel::WARN);
     }
@@ -113,7 +113,7 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
         return;
     }
 
-    if (internalJoystick == nullptr) {
+    if (joystick == nullptr) {
         return;
     }
 
@@ -159,7 +159,7 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
             std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
             try {
-                internalJoystick->setButton(JoystickButtonUtil::fromString(name));
+                joystick->setButton(JoystickButtonUtil::fromString(name));
             } catch (const std::invalid_argument& e) {
                 telemetry.log("Received an unknown teleop button: " + name, LogLevel::WARN);
             }

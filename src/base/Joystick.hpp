@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -158,20 +159,26 @@ namespace JoystickAxisUtil {
     }
 } // namespace JoystickAxisUtil
 
-class InternalJoystick {
+class SocketJoystick {
     public:
-        InternalJoystick() = default;
-        virtual ~InternalJoystick() = default;
+        SocketJoystick() = default;
+        virtual ~SocketJoystick() = default;
 
         virtual bool getButton(JoystickButton) const = 0;
 
         virtual void setButton(JoystickButton) = 0;
+
+        virtual std::function<bool()> buttonEvent(JoystickButton button) {
+            return [this, button]() {
+                return this->getButton(button);
+            };
+        }
 };
 
-class InternalXBoxController : public InternalJoystick {
+class SocketXBoxController : public SocketJoystick {
     public:
-        InternalXBoxController() = default;
-        ~InternalXBoxController() = default;
+        SocketXBoxController() = default;
+        ~SocketXBoxController() = default;
 
         bool getButton(JoystickButton button) const override {
             return pressedButtons.find(button) != pressedButtons.end();
