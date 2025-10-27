@@ -81,11 +81,28 @@ void SPRK::addJoystickButtons() {
 
     Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
         .onTrue([&arm = this->arm]() {
+            arm->log("Moving turret CCW.", LogLevel::VERBOSE);
+            arm->moveTurret(StepperDirection::CCW);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping turret.", LogLevel::VERBOSE);
+            arm->moveTurret(StepperDirection::STOP);
+        });
+    Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+        .onTrue([&arm = this->arm]() {
             arm->log("Moving turret CW.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::CW);
         })
         .onFalse([&arm = this->arm]() {
             arm->log("Stopping turret.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::STOP);
+        });
+
+    Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
+        .onTrue([&arm = this->arm]() {
+            arm->log("DPADUP pressed.", LogLevel::VERBOSE);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("DPADUP released.", LogLevel::VERBOSE);
         });
 }
