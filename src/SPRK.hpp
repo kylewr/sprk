@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
 
+#include "src/base/JoystickConstants.hpp"
 #include "src/base/RobotBase.hpp"
 #include "src/base/SerialInterface.hpp"
 #include "src/base/SocketManager.hpp"
@@ -50,8 +51,5 @@ class SPRK : public RobotBase {
 
         SerialInterface* serialInterface;
 
-        std::vector<std::function<void()>> teleopSubscribers;
-
-        void handleIncomingMessage(const std::string& msg);
-        void handleTeleopPacket(const std::string& packet);
+        void handleTeleopPacket(const std::string& packet) override;
 };

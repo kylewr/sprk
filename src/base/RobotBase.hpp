@@ -2,8 +2,8 @@
 
 #include <initializer_list>
 #include <memory>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #include "RobotEnums.hpp"
 #include "RobotHelpers.hpp"
@@ -65,15 +65,23 @@ class RobotBase {
         RobotTelemetry telemetry;
         std::vector<Subsystem*> subsystems;
 
+        RobotInfoArgs* getInfoArgs() const {
+            return infoArgs;
+        }
+        void setInfoArgs(RobotInfoArgs* args);
+
         void addSubsystem(Subsystem* subsystem);
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
         bool setSocketArguments(SocketManagerArgs* args);
 
-        void informControllerInit(RobotInfoArgs* args);
+        virtual void handleTeleopPacket(const std::string&) {};
 
     private:
+        RobotInfoArgs* infoArgs {nullptr};
         RobotState currentState {RobotState::DISABLED};
 
         void initSocketArgs();
+        void informControllerInit();
+        void handleIncomingMessage(const std::string& msg);
 };
