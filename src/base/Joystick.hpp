@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 enum class JoystickButton {
@@ -36,7 +37,7 @@ enum class JoystickButton {
     _DPADUP = 25,
     _DPADDOWN = 26,
     _DPADLEFT = 27,
-    _DPADRIGHT = 28
+    _DPADRIGHT = 28,
 };
 
 namespace JoystickButtonUtil {
@@ -88,6 +89,28 @@ namespace JoystickButtonUtil {
         {JoystickButton::DPADLEFT, JoystickButton::_DPADLEFT},
         {JoystickButton::DPADRIGHT, JoystickButton::_DPADRIGHT}};
 
+    inline bool isReleasedValue(JoystickButton button) {
+        for (const auto& pair : RELEASE_MAP) {
+            if (pair.second == button) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    inline JoystickButton getPressedValue(JoystickButton button) {
+        if (!isReleasedValue(button)) {
+            return button;
+        }
+
+        for (const auto& pair : RELEASE_MAP) {
+            if (pair.second == button) {
+                return pair.first;
+            }
+        }
+        return button;
+    }
+
     inline JoystickButton getReleasedValue(JoystickButton button) {
         auto it = RELEASE_MAP.find(button);
         return (it != RELEASE_MAP.end()) ? it->second : button;
@@ -134,3 +157,48 @@ namespace JoystickAxisUtil {
                 {JoystickAxis::RIGHT_TRIGGER, static_cast<float>(axis[5])}};
     }
 } // namespace JoystickAxisUtil
+
+class InternalJoystick {
+    public:
+        InternalJoystick() = default;
+        virtual ~InternalJoystick() = default;
+
+        virtual bool getButton(JoystickButton) const = 0;
+
+        virtual void setButton(JoystickButton) = 0;
+};
+
+class InternalXBoxController : public InternalJoystick {
+    public:
+        InternalXBoxController() = default;
+        ~InternalXBoxController() = default;
+
+        bool getButton(JoystickButton button) const override {
+            return pressedButtons.find(button) != pressedButtons.end();
+        };
+        // float getAxis(JoystickAxis axis) const {
+        //     auto it = axisStates.find(axis);
+        //     if (it != axisStates.end()) {
+        //         return it->second;
+        //     }
+        //     return 0.0f;
+        // };
+
+        void setButton(JoystickButton button) override {
+            JoystickButton pressedValue = JoystickButtonUtil::getPressedValue(button);
+            bool isReleasedValue = JoystickButtonUtil::isReleasedValue(button);
+            if (isReleasedValue && getButton(pressedValue)) {
+                pressedButtons.erase(pressedValue);
+            } else if (!isReleasedValue) {
+                pressedButtons.insert(button);
+            }
+        };
+
+        // void setAxisState(JoystickAxis axis, float value) {
+        //     axisStates[axis] = value;
+        // };
+
+    private:
+        std::unordered_set<JoystickButton> pressedButtons;
+        std::unordered_map<JoystickAxis, float> axisStates;
+};

@@ -9,6 +9,7 @@
 #include "src/base/RobotBase.hpp"
 #include "src/base/SerialInterface.hpp"
 #include "src/base/SocketManager.hpp"
+#include "src/base/Trigger.hpp"
 #include "src/base/actuation/VirtualStepperManager.hpp"
 
 #include "subsystem/Arm.hpp"
@@ -25,7 +26,7 @@ class SPRKArgs {
 
 class SPRK final : public RobotBase {
     public:
-        SPRK(SPRKArgs* args);
+        explicit SPRK(SPRKArgs* args);
         ~SPRK() = default;
 
         // bool autonomousInit() override;
@@ -51,6 +52,5 @@ class SPRK final : public RobotBase {
 
         void loop() override;
 
-        void addJoystickButtons() override;
-        // void handleTeleopPacket(const std::string& packet) override;
+        void addJoystickButtons();
 };

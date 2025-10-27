@@ -11,6 +11,7 @@
 #include "SocketManager.hpp"
 #include "Subsystem.hpp"
 #include "Telemetry.hpp"
+#include "Trigger.hpp"
 
 class RobotBase {
     public:
@@ -61,20 +62,23 @@ class RobotBase {
         RobotTelemetry telemetry;
         std::vector<Subsystem*> subsystems;
 
-        std::unordered_map<JoystickButton, std::function<void()>> teleopInstructions {};
+        InternalJoystick* internalJoystick {nullptr}; // for now only one
 
         virtual RobotInfoArgs* getInfoArgs() const final {
             return infoArgs;
         }
         virtual void setInfoArgs(RobotInfoArgs* args) final;
+        bool setSocketArguments(SocketManagerArgs* args);
 
         void addSubsystem(Subsystem* subsystem);
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
-        bool setSocketArguments(SocketManagerArgs* args);
+        // idk what the fuck im doing here lowkey
+        virtual void registerInternalJoystick(InternalJoystick* joystick) final {
+            internalJoystick = joystick;
+        };
 
         virtual void handleTeleopPacket(const std::string& packet);
-        virtual void addJoystickButtons() {};
 
         virtual void loop() {
             // default does nothing

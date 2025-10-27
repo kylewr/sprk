@@ -20,6 +20,11 @@ RobotBase::~RobotBase() {
         changeState(RobotState::DISABLED);
     }
 
+    if (internalJoystick != nullptr) {
+        delete internalJoystick;
+        internalJoystick = nullptr;
+    }
+
     for (Subsystem* subsystem : subsystems) {
         delete subsystem;
     }
@@ -54,7 +59,14 @@ void RobotBase::changeState(RobotState newState) {
 }
 
 void RobotBase::run() {
+    if (internalJoystick == nullptr) {
+        telemetry.log("No controller registered to RobotBase; teleop inputs will be ignored.",
+                      LogLevel::WARN);
+    }
+
+    TriggerManager& triggerManager = TriggerManager::getInstance();
     while (isAlive()) {
+        triggerManager.process();
         loop();
     }
 }
@@ -101,6 +113,10 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
         return;
     }
 
+    if (internalJoystick == nullptr) {
+        return;
+    }
+
     std::vector<std::string> messages = RobotHelpers::split(packet.substr(3), ';');
 
     std::string message;
@@ -120,7 +136,7 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
             continue;
         }
 
-        std::string command = parts[0];
+        std::string& command = parts[0];
 
         if (command == "jstk") {
             // if (parts.size() < 2) {
@@ -139,16 +155,11 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
             if (parts.size() < 2) {
                 continue;
             }
-            std::string name = parts[1];
+            std::string& name = parts[1];
             std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
             try {
-                JoystickButton button = JoystickButtonUtil::fromString(name);
-                // TODO: there is some lag, so store the button states in a map locally to see if it
-                // changed
-                if (teleopInstructions.find(button) != teleopInstructions.end()) {
-                    teleopInstructions[button]();
-                }
+                internalJoystick->setButton(JoystickButtonUtil::fromString(name));
             } catch (const std::invalid_argument& e) {
                 telemetry.log("Received an unknown teleop button: " + name, LogLevel::WARN);
             }

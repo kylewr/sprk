@@ -4,9 +4,12 @@
 #include <thread>
 
 #include "base/RobotHelpers.hpp"
+#include "base/Trigger.hpp"
 #include "base/simulation/SerialSimulation.hpp"
 
 SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
+    registerInternalJoystick(new InternalXBoxController());
+
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
     infoArgs->message = "Welcome to the C++ SPRK Robot!";
     infoArgs->autons = this->getAutonNames();
@@ -38,10 +41,11 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
         telemetry.log("Failed to open serial port on " +
                           std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting simulation.",
                       LogLevel::ERROR);
-        
+
         delete serialInterface;
 
-        serialInterface = new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+        serialInterface =
+            new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
         serialInterface->onReceive([this](const std::string& msg) {
             this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
         });
@@ -65,16 +69,16 @@ void SPRK::loop() {
 }
 
 void SPRK::addJoystickButtons() {
-    teleopInstructions[JoystickButton::LEFTSHOULDER] = [this]() {
-        this->telemetry.log("LEFTSHOULDER pressed; moving turret CW.", LogLevel::INFO);
-        this->arm->moveTurret(StepperDirection::CW);
-    };
-    teleopInstructions[JoystickButton::_LEFTSHOULDER] = [this]() {
-        this->telemetry.log("LEFTSHOULDER unpressed; stopping turret.", LogLevel::INFO);
-        this->arm->moveTurret(StepperDirection::STOP);
-    };
-}
 
-// void SPRK::handleTeleopPacket(const std::string& packet) {
-//     telemetry.log("Received teleop packet: " + packet, LogLevel::INFO);
-// }
+    Trigger::create([&c = this->internalJoystick]() {
+        return c->getButton(JoystickButton::LEFTSHOULDER);
+    })
+        .onTrue([&tm = this->telemetry, &arm = this->arm]() {
+            tm.log("LEFTSHOULDER pressed; moving turret CW.", LogLevel::INFO);
+            arm->moveTurret(StepperDirection::CW);
+        })
+        .onFalse([&tm = this->telemetry, &arm = this->arm]() {
+            tm.log("LEFTSHOULDER unpressed; stopping turret.", LogLevel::INFO);
+            arm->moveTurret(StepperDirection::STOP);
+        });
+}
