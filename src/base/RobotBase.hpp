@@ -5,13 +5,12 @@
 #include <thread>
 #include <vector>
 
+#include "Joystick.hpp"
 #include "RobotEnums.hpp"
 #include "RobotHelpers.hpp"
 #include "SocketManager.hpp"
 #include "Subsystem.hpp"
 #include "Telemetry.hpp"
-#include "Joystick.hpp"
-
 
 class RobotBase {
     public:
@@ -80,6 +79,7 @@ class RobotBase {
         bool setSocketArguments(SocketManagerArgs* args);
 
         virtual void handleTeleopPacket(const std::string& packet);
+        virtual void addJoystickButtons() {};
 
     private:
         RobotInfoArgs* infoArgs {nullptr};

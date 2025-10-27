@@ -51,5 +51,6 @@ class SPRK : public RobotBase {
 
         SerialInterface* serialInterface;
 
+        void addJoystickButtons() override;
         // void handleTeleopPacket(const std::string& packet) override;
 };

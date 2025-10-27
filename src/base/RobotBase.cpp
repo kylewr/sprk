@@ -138,6 +138,8 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
 
             try {
                 JoystickButton button = JoystickButtonUtil::fromString(name);
+                // TODO: there is some lag, so store the button states in a map locally to see if it
+                // changed
                 if (teleopInstructions.find(button) != teleopInstructions.end()) {
                     teleopInstructions[button]();
                 }

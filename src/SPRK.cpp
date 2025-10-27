@@ -57,6 +57,16 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
 
     addSubsystem({arm, drivetrain, pinchers});
 
+    addJoystickButtons();
+}
+
+void SPRK::loop() {
+    while (alive) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+void SPRK::addJoystickButtons() {
     teleopInstructions[JoystickButton::LEFTSHOULDER] = [this]() {
         this->telemetry.log("LEFTSHOULDER pressed; moving turret CW.", LogLevel::INFO);
         this->arm->moveTurret(StepperDirection::CW);
@@ -65,12 +75,6 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
         this->telemetry.log("LEFTSHOULDER unpressed; stopping turret.", LogLevel::INFO);
         this->arm->moveTurret(StepperDirection::STOP);
     };
-}
-
-void SPRK::loop() {
-    while (alive) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
 }
 
 // void SPRK::handleTeleopPacket(const std::string& packet) {
