@@ -14,6 +14,11 @@ RobotBase::RobotBase() : telemetry(RobotTelemetry()) {
 
 RobotBase::~RobotBase() {
     telemetry.log("RobotBase cleaning up.", LogLevel::INFO);
+
+    if (getCurrentState() != RobotState::DISABLED) {
+        changeState(RobotState::DISABLED);
+    }
+
     for (Subsystem* subsystem : subsystems) {
         delete subsystem;
     }
@@ -21,31 +26,30 @@ RobotBase::~RobotBase() {
 
 void RobotBase::changeState(RobotState newState) {
     currentState = newState;
-    telemetry.logRobotState(newState); // also reports the state to the controller
 
     switch (newState) {
         case RobotState::AUTONOMOUS:
-            autonomousInit();
+            if (!autonomousInit()) {
+                telemetry.log("Autonomous initialization failed.", LogLevel::ERROR);
+                return;
+            }
             break;
         case RobotState::TELEOP:
-            teleopInit();
+            if (!teleopInit()) {
+                telemetry.log("Teleop initialization failed!", LogLevel::ERROR);
+                return;
+            }
             break;
         case RobotState::DISABLED:
             disabledInit();
             break;
     }
-}
 
-void RobotBase::autonomousInit() {
-    // TODO: Implement
-}
+    for (Subsystem* subsystem : subsystems) {
+        subsystem->changedState(newState);
+    }
 
-void RobotBase::teleopInit() {
-    // TODO: Implement4
-}
-
-void RobotBase::disabledInit() {
-    // TODO: Implement
+    telemetry.logRobotState(newState); // also reports the state to the controller
 }
 
 void RobotBase::addSubsystem(Subsystem* subsystem) {

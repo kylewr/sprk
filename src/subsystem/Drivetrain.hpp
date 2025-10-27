@@ -6,6 +6,4 @@ class Drivetrain : public Subsystem {
     public:
         Drivetrain() : Subsystem("DRIVETRAIN") {}
         ~Drivetrain() = default;
-
-    private:
 };

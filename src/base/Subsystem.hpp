@@ -11,13 +11,15 @@ class Subsystem {
                 this->telemetry.log("Telemetry initialized.", LogLevel::INFO);
             });
         };
-        ~Subsystem() {
+        virtual ~Subsystem() {
             telemetry.log("Subsystem destroyed.", LogLevel::VERBOSE);
         };
 
         SubsystemTelemetry* getTelemetry() {
             return &telemetry;
         }
+
+        virtual void changedState(RobotState) {}
 
     protected:
         SubsystemTelemetry telemetry;

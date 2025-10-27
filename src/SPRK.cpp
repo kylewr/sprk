@@ -25,28 +25,40 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
         telemetry.log("Failed to initialize socket.", LogLevel::ERROR, true);
     }
 
+    serialInterface =
+        new SerialInterface(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+    serialInterface->onReceive([this](const std::string& msg) {
+        this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
+    });
+
+    if (serialInterface->openPort()) {
+        telemetry.log("Serial port opened on " + std::string(Constants::IOMap::SERIAL_PORT) +
+                          " opened.",
+                      LogLevel::INFO);
+    } else {
+        telemetry.log("Failed to open serial port on " +
+                          std::string(Constants::IOMap::SERIAL_PORT) + "!",
+                      LogLevel::ERROR);
+    }
+
+    arm = new Arm(serialInterface);
     drivetrain = new Drivetrain();
     pinchers = new Pinchers();
 
-    addSubsystem({drivetrain, pinchers});
+    addSubsystem({arm, drivetrain, pinchers});
 }
 
 void SPRK::loop() {
     while (alive) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        if (getCurrentState() == RobotState::TELEOP) {
-            telemetry.log("SPRK main loop iteration. Meow.", LogLevel::WARN);
-            std::this_thread::sleep_for(std::chrono::milliseconds(1989));
-        }
     }
 }
 
 void SPRK::handleIncomingMessage(const std::string& msg) {
     if (msg.compare(0, 4, "exit") == 0) {
-        this->socketManager.closeSocket();
-        this->changeState(RobotState::DISABLED);
-        this->alive = false;
+        socketManager.closeSocket();
+        changeState(RobotState::DISABLED);
+        alive = false;
     } else if (msg.compare(0, 5, "init,") == 0) {
         std::string controllerVersion = msg.substr(5);
 
@@ -55,22 +67,22 @@ void SPRK::handleIncomingMessage(const std::string& msg) {
         infoArgs->autons = this->getAutonNames();
         infoArgs->flags.push_back(RobotFlags::CAMERA);
 
-        this->informControllerInit(infoArgs);
+        informControllerInit(infoArgs);
 
         std::this_thread::sleep_for(
             std::chrono::milliseconds(50)); // Sleep for 50ms to ensure message is sent
 
-        this->telemetry.log("Received controller version: " + controllerVersion, LogLevel::INFO);
+        telemetry.log("Received controller version: " + controllerVersion, LogLevel::INFO);
     } else if (msg.compare(0, 4, "tele") == 0) {
-        this->changeState(RobotState::TELEOP);
+        changeState(RobotState::TELEOP);
     } else if (msg.compare(0, 4, "auto") == 0) {
-        this->changeState(RobotState::AUTONOMOUS);
+        changeState(RobotState::AUTONOMOUS);
     } else if (msg.compare(0, 3, "dis") == 0) {
-        this->changeState(RobotState::DISABLED);
+        changeState(RobotState::DISABLED);
     } else if (msg.compare(0, 3, "te-") == 0) {
-        // handle teleop packets here
+        handleTeleopPacket(msg);
     } else {
-        this->telemetry.log("Unknown incoming message: " + msg, LogLevel::ERROR);
+        telemetry.log("Unknown incoming message: " + msg, LogLevel::ERROR);
     }
 }
 

@@ -3,6 +3,7 @@
 #include <initializer_list>
 #include <memory>
 #include <vector>
+#include <thread>
 
 #include "RobotEnums.hpp"
 #include "RobotHelpers.hpp"
@@ -17,16 +18,27 @@ class RobotBase {
 
         void changeState(RobotState newState);
 
-        void autonomousInit();
+        virtual void loop() {
+            // default does nothing
+            while (alive) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
+        };
 
-        void teleopInit();
+        virtual bool autonomousInit() {
+            return true;
+        };
 
-        void disabledInit();
+        virtual bool teleopInit() {
+            return true;
+        };
+
+        virtual void disabledInit() {};
 
         RobotState getCurrentState() const {
             return currentState;
         }
-        
+
         bool isAlive() const {
             return alive;
         }
