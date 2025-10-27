@@ -32,3 +32,7 @@ void Arm::changedState(RobotState newState) {
             break;
     }
 }
+
+void Arm::moveTurret(StepperDirection direction) {
+    turret->rotateContinuous(direction);
+}

@@ -90,6 +90,66 @@ bool RobotBase::setSocketArguments(SocketManagerArgs* args) {
     return status;
 }
 
+void RobotBase::handleTeleopPacket(const std::string& packet) {
+    if (packet.compare(0, 3, "te-") != 0) {
+        return;
+    }
+
+    std::vector<std::string> messages = RobotHelpers::split(packet.substr(3), ';');
+
+    std::string message;
+    for (const std::string& msg : messages) {
+        if (msg.empty()) {
+            continue;
+        }
+        message = msg;
+        std::replace(message.begin(), message.end(), '\n', ' ');
+
+        if (message.empty() || message.size() < 3) {
+            continue;
+        }
+
+        std::vector<std::string> parts = RobotHelpers::split(message, ',');
+        if (parts.empty()) {
+            continue;
+        }
+
+        std::string command = parts[0];
+
+        if (command == "jstk") {
+            // if (parts.size() < 2) {
+            //     continue;
+            // }
+            // std::vector<int> dctrls(parts.begin() + 1, parts.end());
+            // try {
+            //     JoystickAxis axis = JoystickAxisUtil::convertFromList(dctrls);
+            //     if (teleopInstructions.find("joystick") != teleopInstructions.end()) {
+            //         teleopInstructions["joystick"](axis);
+            //     }
+            // } catch (const std::invalid_argument& e) {
+            //     telemetry.log("Failed to decode joystick axes: " + message, LogLevel::WARN);
+            // }
+        } else if (command == "btn" || command == "te-btn") {
+            if (parts.size() < 2) {
+                continue;
+            }
+            std::string name = parts[1];
+            std::transform(name.begin(), name.end(), name.begin(), ::toupper);
+
+            try {
+                JoystickButton button = JoystickButtonUtil::fromString(name);
+                if (teleopInstructions.find(button) != teleopInstructions.end()) {
+                    teleopInstructions[button]();
+                }
+            } catch (const std::invalid_argument& e) {
+                telemetry.log("Received an unknown teleop button: " + name, LogLevel::WARN);
+            }
+        } else {
+            // telemetry.log("Received an unknown teleop input: " + msg, LogLevel::WARN);
+        }
+    }
+}
+
 void RobotBase::initSocketArgs() {
     if (socketArgs == nullptr) {
         telemetry.log("Socket arguments not set; cannot initialize socket.", LogLevel::ERROR, true);
@@ -108,6 +168,10 @@ void RobotBase::initSocketArgs() {
             this->handleIncomingMessage(msg);
         };
     }
+
+    socketManager.onConnect([this]() {
+        this->changeState(RobotState::DISABLED);
+    });
 
     telemetry.setSocketSupplier([this](const std::string& msg) {
         if (!this->socketManager.hasConnection()) {

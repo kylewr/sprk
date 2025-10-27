@@ -1,16 +1,16 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <thread>
-#include <functional>
 
 class SerialInterface {
     public:
         SerialInterface(const std::string& portName, unsigned int baudRate);
-        ~SerialInterface();
+        virtual ~SerialInterface();
 
-        bool openPort();
-        void closePort();
+        virtual bool openPort();
+        virtual void closePort();
 
         bool getIsOpen() const {
             return isOpen;
@@ -19,10 +19,10 @@ class SerialInterface {
         void onReceive(std::function<void(const std::string&)> handler) {
             receiveHandler = handler;
         }
-    
-        bool writeData(const std::string& data);
 
-    private:
+        virtual bool writeData(const std::string& data);
+
+    protected:
         const std::string portName;
         const unsigned int baudRate;
         std::function<void(const std::string&)> receiveHandler;
@@ -30,5 +30,6 @@ class SerialInterface {
         int fd;
         bool isOpen {false};
 
+    private:
         bool configurePort();
 };

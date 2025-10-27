@@ -4,13 +4,14 @@
 #include <thread>
 
 #include "base/RobotHelpers.hpp"
+#include "base/simulation/SerialSimulation.hpp"
 
 SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
     infoArgs->message = "Welcome to the C++ SPRK Robot!";
     infoArgs->autons = this->getAutonNames();
     infoArgs->flags.push_back(RobotFlags::CAMERA);
-    
+
     setInfoArgs(infoArgs);
 
     SocketManagerArgs* socketArgs = new SocketManagerArgs();
@@ -19,12 +20,7 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
 
     setSocketArguments(socketArgs);
 
-    socketManager.onConnect([this]() {
-        this->changeState(RobotState::DISABLED);
-    });
-
-    bool success = socketManager.initializeSocket();
-    if (!success) {
+    if (!socketManager.initializeSocket()) {
         telemetry.log("Failed to initialize socket.", LogLevel::ERROR, true);
     }
 
@@ -40,8 +36,19 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
                       LogLevel::INFO);
     } else {
         telemetry.log("Failed to open serial port on " +
-                          std::string(Constants::IOMap::SERIAL_PORT) + "!",
+                          std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting simulation.",
                       LogLevel::ERROR);
+        
+        delete serialInterface;
+
+        serialInterface = new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+        serialInterface->onReceive([this](const std::string& msg) {
+            this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
+        });
+
+        serialInterface->openPort();
+
+        telemetry.log("Serial simulation interface initialized.", LogLevel::INFO);
     }
 
     arm = new Arm(serialInterface);
@@ -49,6 +56,15 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
     pinchers = new Pinchers();
 
     addSubsystem({arm, drivetrain, pinchers});
+
+    teleopInstructions[JoystickButton::LEFTSHOULDER] = [this]() {
+        this->telemetry.log("LEFTSHOULDER pressed; moving turret CW.", LogLevel::INFO);
+        this->arm->moveTurret(StepperDirection::CW);
+    };
+    teleopInstructions[JoystickButton::_LEFTSHOULDER] = [this]() {
+        this->telemetry.log("LEFTSHOULDER unpressed; stopping turret.", LogLevel::INFO);
+        this->arm->moveTurret(StepperDirection::STOP);
+    };
 }
 
 void SPRK::loop() {
@@ -57,5 +73,6 @@ void SPRK::loop() {
     }
 }
 
-
-void SPRK::handleTeleopPacket(const std::string& packet) {}
+// void SPRK::handleTeleopPacket(const std::string& packet) {
+//     telemetry.log("Received teleop packet: " + packet, LogLevel::INFO);
+// }

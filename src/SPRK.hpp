@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "src/base/JoystickConstants.hpp"
+#include "src/base/Joystick.hpp"
 #include "src/base/RobotBase.hpp"
 #include "src/base/SerialInterface.hpp"
 #include "src/base/SocketManager.hpp"
@@ -51,5 +51,5 @@ class SPRK : public RobotBase {
 
         SerialInterface* serialInterface;
 
-        void handleTeleopPacket(const std::string& packet) override;
+        // void handleTeleopPacket(const std::string& packet) override;
 };

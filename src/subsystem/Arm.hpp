@@ -19,6 +19,8 @@ class Arm : public Subsystem {
 
         void changedState(RobotState newState) override;
 
+        void moveTurret(StepperDirection direction);
+
     private:
         SerialInterface* serialInterface;
         VirtualStepperManager* stepperManager;

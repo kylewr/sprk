@@ -10,6 +10,8 @@
 #include "SocketManager.hpp"
 #include "Subsystem.hpp"
 #include "Telemetry.hpp"
+#include "Joystick.hpp"
+
 
 class RobotBase {
     public:
@@ -65,6 +67,8 @@ class RobotBase {
         RobotTelemetry telemetry;
         std::vector<Subsystem*> subsystems;
 
+        std::unordered_map<JoystickButton, std::function<void()>> teleopInstructions {};
+
         RobotInfoArgs* getInfoArgs() const {
             return infoArgs;
         }
@@ -75,7 +79,7 @@ class RobotBase {
 
         bool setSocketArguments(SocketManagerArgs* args);
 
-        virtual void handleTeleopPacket(const std::string&) {};
+        virtual void handleTeleopPacket(const std::string& packet);
 
     private:
         RobotInfoArgs* infoArgs {nullptr};

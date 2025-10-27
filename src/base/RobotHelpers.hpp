@@ -1,11 +1,12 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "RobotEnums.hpp"
 
-#define ROBOT_INFO_PREFIX "[ROBOTINFO] "
+#define ROBOT_INFO_PREFIX "[ROBOTINFO]"
 #define ROBOT_INFO_AUTONS_TAG "[SIG][AUTONS]"
 #define ROBOT_INFO_FLAGS_TAG "[SIG][FLAGS]"
 
@@ -31,6 +32,18 @@ class RobotHelpers {
                 }
             }
             return result;
+        }
+
+        static std::vector<std::string> split(const std::string& str, char delimiter) {
+            std::vector<std::string> tokens;
+            std::stringstream ss(str);
+            std::string token;
+
+            while (std::getline(ss, token, delimiter)) {
+                tokens.push_back(token);
+            }
+
+            return tokens;
         }
 };
 
