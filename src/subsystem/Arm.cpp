@@ -36,3 +36,15 @@ void Arm::changedState(RobotState newState) {
 void Arm::moveTurret(StepperDirection direction) {
     turret->rotateContinuous(direction);
 }
+
+void Arm::moveArm(StepperDirection direction) {
+    serialInterface->startMultiCommand();
+    arm->rotateContinuous(direction);
+    serialInterface->writeData("2rpm80!");
+    wrist->rotateContinuous(StepperHelpers::invertDirection(direction));
+    serialInterface->writeData("\n");
+}
+
+void Arm::moveWrist(StepperDirection direction) {
+    wrist->rotateContinuous(direction);
+}

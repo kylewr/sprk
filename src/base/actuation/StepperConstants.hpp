@@ -13,3 +13,17 @@ enum class StepperDirection {
     CCW,
     STOP,
 };
+
+namespace StepperHelpers {
+    inline StepperDirection invertDirection(StepperDirection dir) {
+        switch (dir) {
+            case StepperDirection::CW:
+                return StepperDirection::CCW;
+            case StepperDirection::CCW:
+                return StepperDirection::CW;
+            case StepperDirection::STOP:
+            default:
+                return StepperDirection::STOP;
+        }
+    }
+}

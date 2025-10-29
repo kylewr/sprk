@@ -20,6 +20,8 @@ class Arm : public Subsystem {
         void changedState(RobotState newState) override;
 
         void moveTurret(StepperDirection direction);
+        void moveArm(StepperDirection direction);
+        void moveWrist(StepperDirection direction);
 
     private:
         SerialInterface* serialInterface;

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/SerialInterface.hpp"
+#include "base/actuation/StepperConstants.hpp"
 
 class SerialSimulation : public SerialInterface {
     public:
@@ -21,6 +22,24 @@ class SerialSimulation : public SerialInterface {
         bool writeData(const std::string& data) override {
             if (!isOpen) {
                 return false;
+            }
+
+            if (isMultiCommandMode) {
+                if (data[0] != '\n') {
+                    multiCommand += data;
+                    if (multiCommand.back() == '!') {
+                        multiCommand.pop_back(); // remove last '!'
+                    }
+                    multiCommand += '.';
+                    return true;
+                }
+                isMultiCommandMode = false;
+                multiCommand.pop_back(); // remove last '.'
+                multiCommand += SERIAL_END_BYTE;
+                if (receiveHandler) {
+                    receiveHandler(multiCommand);
+                }
+                return true;
             }
 
             if (receiveHandler) {

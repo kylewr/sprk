@@ -22,6 +22,11 @@ class SerialInterface {
 
         virtual bool writeData(const std::string& data);
 
+        void startMultiCommand() {
+            isMultiCommandMode = true;
+            multiCommand = ";";
+        }
+
     protected:
         const std::string portName;
         const unsigned int baudRate;
@@ -29,6 +34,9 @@ class SerialInterface {
 
         int fd;
         bool isOpen {false};
+
+        bool isMultiCommandMode {false};
+        std::string multiCommand{};
 
     private:
         bool configurePort();

@@ -73,22 +73,9 @@ void SPRK::addJoystickButtons() {
         .onTrue([&telem = this->telemetry]() {
             telem.log("Enabling verbose logging.", LogLevel::INFO);
             telem.setGlobalVerbose(true);
-        })
-        .onFalse([&telem = this->telemetry]() {
-            telem.log("Disabling verbose logging.", LogLevel::INFO);
-            telem.setGlobalVerbose(false);
         });
 
     Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
-        .onTrue([&arm = this->arm]() {
-            arm->log("Moving turret CCW.", LogLevel::VERBOSE);
-            arm->moveTurret(StepperDirection::CCW);
-        })
-        .onFalse([&arm = this->arm]() {
-            arm->log("Stopping turret.", LogLevel::VERBOSE);
-            arm->moveTurret(StepperDirection::STOP);
-        });
-    Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
         .onTrue([&arm = this->arm]() {
             arm->log("Moving turret CW.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::CW);
@@ -97,12 +84,53 @@ void SPRK::addJoystickButtons() {
             arm->log("Stopping turret.", LogLevel::VERBOSE);
             arm->moveTurret(StepperDirection::STOP);
         });
+    Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+        .onTrue([&arm = this->arm]() {
+            arm->log("Moving turret CCW.", LogLevel::VERBOSE);
+            arm->moveTurret(StepperDirection::CCW);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping turret.", LogLevel::VERBOSE);
+            arm->moveTurret(StepperDirection::STOP);
+        });
 
     Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
         .onTrue([&arm = this->arm]() {
-            arm->log("DPADUP pressed.", LogLevel::VERBOSE);
+            arm->log("Moving arm CW.", LogLevel::VERBOSE);
+            arm->moveArm(StepperDirection::CW);
         })
         .onFalse([&arm = this->arm]() {
-            arm->log("DPADUP released.", LogLevel::VERBOSE);
+            arm->log("Stopping arm.", LogLevel::VERBOSE);
+            arm->moveArm(StepperDirection::STOP);
+        });
+
+    Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
+        .onTrue([&arm = this->arm]() {
+            arm->log("Moving arm CCW.", LogLevel::VERBOSE);
+            arm->moveArm(StepperDirection::CCW);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping arm.", LogLevel::VERBOSE);
+            arm->moveArm(StepperDirection::STOP);
+        });
+
+    Trigger::create(joystick->buttonEvent(JoystickButton::DPADRIGHT))
+        .onTrue([&arm = this->arm]() {
+            arm->log("Moving wrist CW.", LogLevel::VERBOSE);
+            arm->moveWrist(StepperDirection::CW);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping wrist.", LogLevel::VERBOSE);
+            arm->moveWrist(StepperDirection::STOP);
+        });
+
+    Trigger::create(joystick->buttonEvent(JoystickButton::DPADLEFT))
+        .onTrue([&arm = this->arm]() {
+            arm->log("Moving wrist CCW.", LogLevel::VERBOSE);
+            arm->moveWrist(StepperDirection::CCW);
+        })
+        .onFalse([&arm = this->arm]() {
+            arm->log("Stopping wrist.", LogLevel::VERBOSE);
+            arm->moveWrist(StepperDirection::STOP);
         });
 }

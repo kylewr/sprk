@@ -6,6 +6,8 @@
 #include <cerrno>
 #include <iostream>
 
+#include "base/actuation/StepperConstants.hpp"
+
 SerialInterface::SerialInterface(const std::string& portName, unsigned int baudRate)
     : portName(portName), baudRate(baudRate) {}
 
@@ -78,6 +80,22 @@ bool SerialInterface::writeData(const std::string& data) {
     if (fd < 0) {
         return false;
     }
+    if (isMultiCommandMode) {
+        if (data[0] != '\n') {
+            multiCommand += data;
+            if (multiCommand.back() == '!') {
+                multiCommand.pop_back(); // remove last '!'
+            }
+            multiCommand += '.';
+            return true;
+        }
+        isMultiCommandMode = false;
+        multiCommand.pop_back(); // remove last '.'
+        multiCommand += SERIAL_END_BYTE;
+        ssize_t bytesWritten = write(fd, multiCommand.c_str(), multiCommand.size());
+        return bytesWritten == static_cast<ssize_t>(multiCommand.size());
+    }
+
     ssize_t bytesWritten = write(fd, data.c_str(), data.size());
     return bytesWritten == static_cast<ssize_t>(data.size());
 }
