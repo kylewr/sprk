@@ -7,7 +7,7 @@
 #include "base/Trigger.hpp"
 #include "base/simulation/SerialSimulation.hpp"
 
-SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
+SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000, 0, true) {
     registerJoystick(new SocketXBoxController());
 
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
@@ -55,13 +55,30 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args) {
         telemetry.log("Serial simulation interface initialized.", LogLevel::INFO);
     }
 
-    arm = new Arm(serialInterface);
+    arm = new Arm(serialInterface, &robotSPI);
     drivetrain = new Drivetrain();
     pinchers = new Pinchers();
 
     addSubsystem({arm, drivetrain, pinchers});
 
     addJoystickButtons();
+}
+
+bool SPRK::autonomousInit() {
+    uint8_t initData[16] = {0x31};
+    robotSPI.writeBytes(initData);
+    return true;
+}
+
+bool SPRK::teleopInit() {
+    uint8_t initData[16] = {0x31};
+    robotSPI.writeBytes(initData);
+    return true;
+}
+
+void SPRK::disabledInit() {
+    uint8_t initData[16] = {0x30};
+    robotSPI.writeBytes(initData);
 }
 
 void SPRK::loop() {

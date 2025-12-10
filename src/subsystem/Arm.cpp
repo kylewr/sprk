@@ -1,6 +1,6 @@
 #include "Arm.hpp"
 
-Arm::Arm(SerialInterface* serial) : Subsystem("ARM"), serialInterface(serial) {
+Arm::Arm(SerialInterface* serial, RobotSPI* robotSPI) : Subsystem("ARM"), serialInterface(serial), robotSPI(robotSPI) {
     stepperManager = new VirtualStepperManager(serialInterface);
 
     turret = new VirtualStepper(Constants::IOMap::TURRET_ID);
@@ -34,17 +34,10 @@ void Arm::changedState(RobotState newState) {
 }
 
 void Arm::moveTurret(StepperDirection direction) {
-    turret->rotateContinuous(direction);
 }
 
 void Arm::moveArm(StepperDirection direction) {
-    serialInterface->startMultiCommand();
-    arm->rotateContinuous(direction);
-    serialInterface->writeData("2rpm80!");
-    wrist->rotateContinuous(StepperHelpers::invertDirection(direction));
-    serialInterface->writeData("\n");
 }
 
 void Arm::moveWrist(StepperDirection direction) {
-    wrist->rotateContinuous(direction);
 }

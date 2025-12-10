@@ -11,6 +11,7 @@
 #include "src/base/SocketManager.hpp"
 #include "src/base/Trigger.hpp"
 #include "src/base/actuation/VirtualStepperManager.hpp"
+#include "src/base/spi/RobotSPI.hpp"
 
 #include "subsystem/Arm.hpp"
 #include "subsystem/Drivetrain.hpp"
@@ -29,9 +30,9 @@ class SPRK final : public RobotBase {
         explicit SPRK(SPRKArgs* args);
         ~SPRK() = default;
 
-        // bool autonomousInit() override;
-        // bool teleopInit() override;
-        // void disabledInit() override;
+        bool autonomousInit() override;
+        bool teleopInit() override;
+        void disabledInit() override;
 
         std::vector<std::string> getAutonNames() const {
             return {"MeowAuton1", "MeowAuton2"};
@@ -43,6 +44,8 @@ class SPRK final : public RobotBase {
 
     private:
         SPRKArgs* sprkArgs;
+
+        RobotSPI robotSPI;      
 
         Arm* arm;
         Drivetrain* drivetrain;

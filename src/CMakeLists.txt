@@ -12,6 +12,7 @@ set(SOURCES
 # Automatically find all .cpp files in subdirectories (if any)
 file(GLOB_RECURSE EXTRA_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/subsystem/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/base/*.cpp"
 )
