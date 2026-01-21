@@ -23,9 +23,10 @@ list(APPEND SOURCES ${EXTRA_SOURCES})
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Full static linking for cross-compilation
-if(CMAKE_CROSSCOMPILING)
-    target_link_options(${PROJECT_NAME} PRIVATE -static)
-endif()
+# Disabled for RPi - use dynamic linking
+#if(CMAKE_CROSSCOMPILING)
+#    target_link_options(${PROJECT_NAME} PRIVATE -static)
+#endif()
 
 # Include directories
 # Add parent directory so #include "robot/base/..." works correctly
