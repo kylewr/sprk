@@ -9,6 +9,13 @@
 #include "base/simulation/SerialSimulation.hpp"
 
 SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000, 0, true) {
+    try {
+        robotSPI.initialize();
+    } catch (const std::runtime_error& e) {
+        telemetry.log(std::string("Failed to initialize SPI: ") + e.what(), LogLevel::ERROR, true);
+        telemetry.log("Continuing in simulation mode.", LogLevel::WARN, true);
+    }
+
     registerJoystick(new SocketXBoxController());
 
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
@@ -66,24 +73,37 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
 }
 
 bool SPRK::autonomousInit() {
-    uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_ENABLE)};
+    static const uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_ENABLE)};
     robotSPI.writeBytes(initData);
     return true;
 }
 
 bool SPRK::teleopInit() {
-    uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_ENABLE)};
+    static const uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_ENABLE)};
     robotSPI.writeBytes(initData);
     return true;
 }
 
 void SPRK::disabledInit() {
-    uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_DISABLE)};
+    static const uint8_t initData[16] = {identToByte(COMMAND_IDENT::ROBOT_DISABLE)};
     robotSPI.writeBytes(initData);
 }
 
 void SPRK::loop() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // Send heartbeat to MCU
+    static const uint8_t heartbeatDataDisabled[16] = {identToByte(COMMAND_IDENT::MASTER_HEARTBEAT_DISABLE)};
+    static const uint8_t heartbeatDataEnabled[16] = {identToByte(COMMAND_IDENT::MASTER_HEARTBEAT_ENABLED)};
+
+    static uint64_t lastHeartbeatTime = 0;
+    uint64_t currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::system_clock::now().time_since_epoch())
+                               .count();
+    if (currentTime - lastHeartbeatTime >= 800) {
+        lastHeartbeatTime = currentTime;
+        robotSPI.writeBytes(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled : heartbeatDataEnabled);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 }
 
 void SPRK::addJoystickButtons() {
@@ -101,6 +121,16 @@ void SPRK::addJoystickButtons() {
         .onFalse([&pinch = this->pinchers]() {
             pinch->log("Setting pinchers to 90 degrees.", LogLevel::VERBOSE);
             pinch->setAngle(180);
+        });
+
+    Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+        .onTrue([&spi = this->robotSPI]() {
+            static const uint8_t data[16] = {identToByte(COMMAND_IDENT::TEST_ONE)};
+            spi.writeBytes(data);
+        })
+        .onFalse([&spi = this->robotSPI]() {
+            static const uint8_t data[16] = {identToByte(COMMAND_IDENT::TEST_ZERO)};
+            spi.writeBytes(data);
         });
 
     // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))

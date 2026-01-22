@@ -1,16 +1,15 @@
 #include "RobotSPI.hpp"
 #include <stdexcept>
 
-RobotSPI::RobotSPI(uint8_t deviceNum, uint8_t bitExchangeSize, uint32_t speed, uint8_t mode,
-                   bool useLock) {
-    spiHandle = SpiOpenPort(deviceNum, bitExchangeSize, speed, mode, useLock);
-    if (spiHandle == nullptr) {
-        throw std::runtime_error("Failed to open SPI port");
-    }
-}
-
 RobotSPI::~RobotSPI() {
     close();
+}
+
+void RobotSPI::initialize() {
+    spiHandle = SpiOpenPort(deviceNumber, bitExchangeSize, speed, mode, useLock);
+    if (spiHandle == nullptr) {
+        throw std::runtime_error("Failed to open SPI port.");
+    }
 }
 
 bool RobotSPI::isOpen() {
@@ -44,4 +43,11 @@ int RobotSPI::writeBytes(uint8_t* txData) {
         return -1;
     }
     return writeAndRead(txData, nullptr, sizeof(txData), false);
+}
+
+int RobotSPI::writeBytes(const uint8_t* txData) {
+    if (spiHandle == nullptr) {
+        return -1;
+    }
+    return writeAndRead(const_cast<uint8_t*>(txData), nullptr, sizeof(txData), false);
 }
