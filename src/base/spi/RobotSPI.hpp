@@ -15,6 +15,7 @@ class RobotSPI {
         bool isOpen();
         void close();
         int writeAndRead(uint8_t* txData, uint8_t* rxData, uint16_t length, bool leaveCsLow);
+        int writeAndRead(const uint8_t* txData, uint8_t* rxData);
         int writeBlockRepeat(uint8_t* txBlock, uint16_t txBlockLen, uint32_t repeats,
                              bool leaveCsLow);
 

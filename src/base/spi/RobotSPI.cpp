@@ -30,6 +30,13 @@ int RobotSPI::writeAndRead(uint8_t* txData, uint8_t* rxData, uint16_t length, bo
     return SpiWriteAndRead(spiHandle, txData, rxData, length, leaveCsLow);
 }
 
+int RobotSPI::writeAndRead(const uint8_t* txData, uint8_t* rxData) {
+    if (spiHandle == nullptr) {
+        return -1;
+    }
+    return SpiWriteAndRead(spiHandle, const_cast<uint8_t*>(txData), rxData, sizeof(txData), false);
+}
+
 int RobotSPI::writeBlockRepeat(uint8_t* txBlock, uint16_t txBlockLen, uint32_t repeats,
                                bool leaveCsLow) {
     if (spiHandle == nullptr) {

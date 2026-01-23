@@ -11,7 +11,7 @@ void Pinchers::setAngle(uint16_t angle) {
 
 void Pinchers::sendAngleBytes(uint8_t highByte, uint8_t lowByte) {
     uint8_t data[16] = {
-        identToByte(COMMAND_IDENT::CONTROL_PINCHERS),
+        commandToByte(COMMAND_IDENT::CONTROL_PINCHERS),
         highByte,
         lowByte
     };
