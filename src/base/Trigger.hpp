@@ -53,6 +53,12 @@ class Trigger : public std::enable_shared_from_this<Trigger> {
             return *this;
         }
 
+        Trigger& onToggle(std::function<void(bool)> action) {
+            onTrueAction = [action]() { action(true); };
+            onFalseAction = [action]() { action(false); };
+            return *this;
+        }
+
         Trigger& whileTrue(std::function<void()> action) {
             whileTrueAction = action;
             return *this;
@@ -60,6 +66,12 @@ class Trigger : public std::enable_shared_from_this<Trigger> {
 
         Trigger& whileFalse(std::function<void()> action) {
             whileFalseAction = action;
+            return *this;
+        }
+
+        Trigger& whileToggle(std::function<void(bool)> action) {
+            whileTrueAction = [action]() { action(true); };
+            whileFalseAction = [action]() { action(false); };
             return *this;
         }
 
