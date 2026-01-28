@@ -59,12 +59,17 @@ enum class RESPONSE_IDENT : uint8_t {
 
     ACK_ROBOT_DISABLE = 0xD0, // Acknowledge Robot Disable
     ACK_ROBOT_ENABLE = 0xD1,  // Acknowledge Robot Enable
+    ACK_MCU_ESTOP = 0xDA,     // Acknowledge MCU Emergency Stop
+
+    STAT_EMERGENCY_STOPPED = 0xF0, // Status Emergency Stopped [unused]
 };
 
 static const std::unordered_map<uint8_t, RESPONSE_IDENT> byteToResponseIdent {
     {0x00, RESPONSE_IDENT::ACK_NO_OP},
     {0xD0, RESPONSE_IDENT::ACK_ROBOT_DISABLE},
     {0xD1, RESPONSE_IDENT::ACK_ROBOT_ENABLE},
+    {0xDA, RESPONSE_IDENT::ACK_MCU_ESTOP},
+    {0xF0, RESPONSE_IDENT::STAT_EMERGENCY_STOPPED},
 };
 
 static inline uint8_t commandToByte(COMMAND_IDENT ident) {

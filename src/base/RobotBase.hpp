@@ -73,7 +73,7 @@ class RobotBase {
         void addSubsystem(Subsystem* subsystem);
         void addSubsystem(std::initializer_list<Subsystem*> newSubsystems);
 
-        // idk what the fuck im doing here lowkey
+        // idk what the heck im doing here lowkey
         virtual void registerJoystick(SocketJoystick* joystick) final {
             this->joystick = joystick;
         };

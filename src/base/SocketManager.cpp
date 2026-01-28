@@ -98,6 +98,10 @@ void SocketManager::createListenerThread() {
                                                                LogLevel::WARN);
                         // close(this->sockfd);
                         this->connection = -1;
+
+                        if (this->onDisconnectCallback != nullptr) {
+                            this->onDisconnectCallback();
+                        }
                         break;
                     } else {
                         this->socketArgs->socketMessageHandler("Error reading from socket.",

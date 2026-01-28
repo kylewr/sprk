@@ -41,27 +41,27 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
         this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
     });
 
-    if (serialInterface->openPort()) {
-        telemetry.log("Serial port opened on " + std::string(Constants::IOMap::SERIAL_PORT) +
-                          " opened.",
-                      LogLevel::INFO);
-    } else {
-        telemetry.log("Failed to open serial port on " +
-                          std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting simulation.",
-                      LogLevel::ERROR);
+    // if (serialInterface->openPort()) {
+    //     telemetry.log("Serial port opened on " + std::string(Constants::IOMap::SERIAL_PORT) +
+    //                       " opened.",
+    //                   LogLevel::INFO);
+    // } else {
+    //     telemetry.log("Failed to open serial port on " +
+    //                       std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting simulation.",
+    //                   LogLevel::ERROR);
 
-        delete serialInterface;
+    //     delete serialInterface;
 
-        serialInterface =
-            new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
-        serialInterface->onReceive([this](const std::string& msg) {
-            this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
-        });
+    //     serialInterface =
+    //         new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+    //     serialInterface->onReceive([this](const std::string& msg) {
+    //         this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
+    //     });
 
-        serialInterface->openPort();
+    //     serialInterface->openPort();
 
-        telemetry.log("Serial simulation interface initialized.", LogLevel::INFO);
-    }
+    //     telemetry.log("Serial simulation interface initialized.", LogLevel::INFO);
+    // }
 
     arm = new Arm(serialInterface, &robotSPI);
     drivetrain = new Drivetrain();
@@ -74,8 +74,19 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
 
 bool SPRK::autonomousInit() {
     static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_ENABLE)};
+    static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
+
+    // Send enable data
     robotSPI.writeBytes(initData);
-    return true;
+    
+    // Wait for slave to process
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    
+    // Read response
+    static uint8_t response[16] = {0};
+    robotSPI.writeAndRead(dummyData, response);
+
+    return response[0] == responseToByte(RESPONSE_IDENT::ACK_ROBOT_ENABLE);
 }
 
 bool SPRK::teleopInit() {
@@ -86,30 +97,21 @@ bool SPRK::teleopInit() {
     robotSPI.writeBytes(initData);
     
     // Wait for slave to process
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     
     // Read response
     static uint8_t response[16] = {0};
     robotSPI.writeAndRead(dummyData, response);
 
-    telemetry.log("Received TELEOP response over SPI: 0x" + std::to_string(response[0]), LogLevel::INFO);
+    // telemetry.log("Received enable response over SPI: 0x" + std::to_string(response[0]), LogLevel::INFO);
     return response[0] == responseToByte(RESPONSE_IDENT::ACK_ROBOT_ENABLE);
 }
 
 void SPRK::disabledInit() {
     static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
-    static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
 
     // Send disable data
-    robotSPI.writeBytes(initData);
-    
-    // Wait for slave to process
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
-    static uint8_t response[16] = {0};
-    robotSPI.writeAndRead(dummyData, response);
-
-    telemetry.log("Received DISABLED response over SPI: 0x" + std::to_string(response[0]), LogLevel::INFO);
+    robotSPI.writeBytes(initData);    
 }
 
 void SPRK::loop() {
@@ -124,11 +126,27 @@ void SPRK::loop() {
     if (currentTime - lastHeartbeatTime >= 800) {
         lastHeartbeatTime = currentTime;
         static uint8_t response[16] = {0};
-        robotSPI.writeAndRead(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled : heartbeatDataEnabled, response);
-        telemetry.log("Received heartbeat response over SPI: 0x" + std::to_string(response[0]), LogLevel::INFO);
+        static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
+        robotSPI.writeBytes(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled : heartbeatDataEnabled);
+        std::this_thread::sleep_for(std::chrono::milliseconds(4));
+
+        robotSPI.writeAndRead(dummyData, response);
+
+        if (response[0] == responseToByte(RESPONSE_IDENT::ACK_MCU_ESTOP)) {
+            changeState(RobotState::DISABLED);
+            telemetry.log("MCU has reached an unrecoverable error state. Sending RESET", LogLevel::ERROR);
+
+            response[0] = 0;
+
+            static const uint8_t resetData[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
+            robotSPI.writeBytes(resetData);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+    } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 }
 
 void SPRK::addJoystickButtons() {

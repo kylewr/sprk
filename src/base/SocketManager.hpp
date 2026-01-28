@@ -54,6 +54,10 @@ class SocketManager {
             onConnectCallback = callback;
         }
 
+        void onDisconnect(std::function<void()> callback) {
+            onDisconnectCallback = callback;
+        }
+
     private:
         SocketManagerArgs* socketArgs;
 
@@ -63,6 +67,7 @@ class SocketManager {
         bool initialized {false};
 
         std::function<void()> onConnectCallback {nullptr};
+        std::function<void()> onDisconnectCallback {nullptr};
 
         void createListenerThread();
 };

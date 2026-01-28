@@ -192,6 +192,10 @@ void RobotBase::initSocketArgs() {
         this->changeState(RobotState::DISABLED);
     });
 
+    socketManager.onDisconnect([this]() {
+        this->changeState(RobotState::DISABLED);
+    });
+
     telemetry.setSocketSupplier([this](const std::string& msg) {
         if (!this->socketManager.hasConnection()) {
             return;
