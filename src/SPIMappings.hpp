@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+
 enum class COMMAND_IDENT : uint8_t {
     // reserve 0x00-0x09 for no operation
     NO_OP = 0x00,

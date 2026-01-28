@@ -38,6 +38,15 @@ void TriggerManager::process() {
             if (action) {
                 action();
             }
+
+            /*
+            This runs the static action, if it exists, passing in the current state.
+            getSavedStateStaticAction is called to toggle the internal saved state for the trigger.
+            */
+            std::function<void(bool)> onTrueStaticAction = trigger->getOnTrueStaticAction();
+            if (currentState && onTrueStaticAction) {
+                onTrueStaticAction(trigger->getSavedStateStaticAction());
+            }
         }
 
         std::function<void()> whileAction =

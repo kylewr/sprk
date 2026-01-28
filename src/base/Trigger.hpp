@@ -43,6 +43,15 @@ class Trigger : public std::enable_shared_from_this<Trigger> {
             return whileFalseAction;
         }
 
+        inline std::function<void(bool)> getOnTrueStaticAction() const {
+            return onTrueStaticAction;
+        }
+
+        bool getSavedStateStaticAction() {
+            savedStateStaticAction = !savedStateStaticAction;
+            return savedStateStaticAction;
+        }
+
         Trigger& onTrue(std::function<void()> action) {
             onTrueAction = action;
             return *this;
@@ -75,6 +84,16 @@ class Trigger : public std::enable_shared_from_this<Trigger> {
             return *this;
         }
 
+        /**
+         * This is a static version of onTrue that passes the current state as a parameter.
+         * This is useful for lambda captures where you want to know the state without
+         * having to store it externally.
+         */
+        Trigger& onTrueStatic(std::function<void(bool)> action) {
+            onTrueStaticAction = action;
+            return *this;
+        }
+
     private:
         Trigger(std::function<bool()> condition) : condition(condition) {};
 
@@ -87,6 +106,9 @@ class Trigger : public std::enable_shared_from_this<Trigger> {
         std::function<void()> onFalseAction;
         std::function<void()> whileTrueAction;
         std::function<void()> whileFalseAction;
+        std::function<void(bool)> onTrueStaticAction;
+
+        bool savedStateStaticAction {false}; // for onTrueStatic only
 };
 
 class TriggerManager {
