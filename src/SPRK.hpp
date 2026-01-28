@@ -45,7 +45,7 @@ class SPRK final : public RobotBase {
     private:
         SPRKArgs* sprkArgs;
 
-        RobotSPI robotSPI;      
+        RobotSPI robotSPI;
 
         Arm* arm;
         Drivetrain* drivetrain;
@@ -55,5 +55,6 @@ class SPRK final : public RobotBase {
 
         void loop() override;
 
-        void addJoystickButtons();
+        void addJoystickAxies();
+        void addTriggers();
 };
