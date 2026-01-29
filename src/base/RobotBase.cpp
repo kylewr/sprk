@@ -74,6 +74,12 @@ void RobotBase::run() {
 void RobotBase::setInfoArgs(RobotInfoArgs* args) {
     if (infoArgs == nullptr) {
         infoArgs = args;
+        for (RobotFlags f : infoArgs->flags) {
+            if (f == RobotFlags::SIMULATION && !simulation) {
+                simulation = true;
+                telemetry.log("Simulation mode enabled via RobotInfoArgs.", LogLevel::INFO);
+            }
+        }
     } else {
         telemetry.log("RobotInfoArgs already set; cannot set again.", LogLevel::ERROR);
     }
@@ -160,6 +166,7 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
 
             try {
                 joystick->setButton(JoystickButtonUtil::fromString(name));
+                telemetry.log("Processed teleop button: " + name, LogLevel::INFO);
             } catch (const std::invalid_argument& e) {
                 telemetry.log("Received an unknown teleop button: " + name, LogLevel::WARN);
             }

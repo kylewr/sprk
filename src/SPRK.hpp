@@ -34,6 +34,8 @@ class SPRK final : public RobotBase {
         bool teleopInit() override;
         void disabledInit() override;
 
+        bool attemptEnable();
+
         std::vector<std::string> getAutonNames() const {
             return {"MeowAuton1", "MeowAuton2"};
         }

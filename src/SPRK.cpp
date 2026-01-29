@@ -19,9 +19,10 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
     registerJoystick(new SocketXBoxController());
 
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
-    infoArgs->message = "Welcome to the C++ SPRK Robot!";
+    infoArgs->message = "SPRK Robot\nDeveloped by Kyle Rush";
     infoArgs->autons = this->getAutonNames();
     infoArgs->flags.push_back(RobotFlags::CAMERA);
+    // infoArgs->flags.push_back(RobotFlags::SIMULATION);
 
     setInfoArgs(infoArgs);
 
@@ -47,7 +48,8 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
     //                   LogLevel::INFO);
     // } else {
     //     telemetry.log("Failed to open serial port on " +
-    //                       std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting simulation.",
+    //                       std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting
+    //                       simulation.",
     //                   LogLevel::ERROR);
 
     //     delete serialInterface;
@@ -64,60 +66,60 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
     // }
 
     arm = new Arm(serialInterface, &robotSPI);
-    drivetrain = new Drivetrain();
+    drivetrain = new Drivetrain(&robotSPI);
     pinchers = new Pinchers(&robotSPI);
 
     addSubsystem({arm, drivetrain, pinchers});
 
-    addJoystickButtons();
+    addJoystickAxies();
+    addTriggers();
 }
 
 bool SPRK::autonomousInit() {
-    static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_ENABLE)};
-    static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
-
-    // Send enable data
-    robotSPI.writeBytes(initData);
-    
-    // Wait for slave to process
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    
-    // Read response
-    static uint8_t response[16] = {0};
-    robotSPI.writeAndRead(dummyData, response);
-
-    return response[0] == responseToByte(RESPONSE_IDENT::ACK_ROBOT_ENABLE);
+    return attemptEnable();
 }
 
 bool SPRK::teleopInit() {
+    return attemptEnable();
+}
+
+void SPRK::disabledInit() {
+    if (!isSimulation()) {
+        static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
+    
+        robotSPI.writeBytes(initData);
+    }
+}
+
+bool SPRK::attemptEnable() {
+    if (isSimulation()) {
+        return true;
+    }
+
     static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_ENABLE)};
     static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
 
     // Send enable data
     robotSPI.writeBytes(initData);
-    
+
     // Wait for slave to process
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    
+
     // Read response
     static uint8_t response[16] = {0};
     robotSPI.writeAndRead(dummyData, response);
 
-    // telemetry.log("Received enable response over SPI: 0x" + std::to_string(response[0]), LogLevel::INFO);
+    // telemetry.log("Received enable response over SPI: 0x" + std::to_string(response[0]),
+    // LogLevel::INFO);
     return response[0] == responseToByte(RESPONSE_IDENT::ACK_ROBOT_ENABLE);
-}
-
-void SPRK::disabledInit() {
-    static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
-
-    // Send disable data
-    robotSPI.writeBytes(initData);    
 }
 
 void SPRK::loop() {
     // Send heartbeat to MCU
-    static const uint8_t heartbeatDataDisabled[16] = {commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_DISABLE)};
-    static const uint8_t heartbeatDataEnabled[16] = {commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_ENABLED)};
+    static const uint8_t heartbeatDataDisabled[16] = {
+        commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_DISABLE)};
+    static const uint8_t heartbeatDataEnabled[16] = {
+        commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_ENABLED)};
 
     static uint64_t lastHeartbeatTime = 0;
     uint64_t currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -127,14 +129,16 @@ void SPRK::loop() {
         lastHeartbeatTime = currentTime;
         static uint8_t response[16] = {0};
         static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
-        robotSPI.writeBytes(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled : heartbeatDataEnabled);
+        robotSPI.writeBytes(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled
+                                                                      : heartbeatDataEnabled);
         std::this_thread::sleep_for(std::chrono::milliseconds(4));
 
         robotSPI.writeAndRead(dummyData, response);
 
         if (response[0] == responseToByte(RESPONSE_IDENT::ACK_MCU_ESTOP)) {
             changeState(RobotState::DISABLED);
-            telemetry.log("MCU has reached an unrecoverable error state. Sending RESET", LogLevel::ERROR);
+            telemetry.log("MCU has reached an unrecoverable error state. Sending RESET",
+                          LogLevel::ERROR);
 
             response[0] = 0;
 
@@ -146,14 +150,16 @@ void SPRK::loop() {
     } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-
 }
 
-void SPRK::addJoystickButtons() {
+void SPRK::addJoystickAxies() {}
+
+void SPRK::addTriggers() {
     Trigger::create(joystick->buttonEvent(JoystickButton::START))
-        .onTrue([&telem = this->telemetry]() {
-            telem.log("Enabling verbose logging.", LogLevel::INFO);
-            telem.setGlobalVerbose(true);
+        .onTrueStatic([&telem = this->telemetry](bool enabled) {
+            telem.log((enabled ? "Enabling" : "Disabling") + std::string(" verbose logging."),
+                      LogLevel::INFO);
+            telem.setGlobalVerbose(enabled);
         });
 
     // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
@@ -166,21 +172,21 @@ void SPRK::addJoystickButtons() {
     //         pinch->setAngle(180);
     //     });
 
-    Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
-        .onTrue([&spi = this->robotSPI]() {
-            static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
-            spi.writeBytes(data);
-        });
+    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
+    //     .onTrue([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
+    //         spi.writeBytes(data);
+    //     });
 
-    Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
-        .onTrue([&spi = this->robotSPI]() {
-            static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ONE)};
-            spi.writeBytes(data);
-        })
-        .onFalse([&spi = this->robotSPI]() {
-            static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ZERO)};
-            spi.writeBytes(data);
-        });
+    // Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+    //     .onTrue([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ONE)};
+    //         spi.writeBytes(data);
+    //     })
+    //     .onFalse([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ZERO)};
+    //         spi.writeBytes(data);
+    //     });
 
     // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
     //     .onTrue([&arm = this->arm]() {
