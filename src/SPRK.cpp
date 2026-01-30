@@ -88,6 +88,12 @@ void SPRK::disabledInit() {
         static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
 
         robotSPI.writeBytes(initData);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+        // send twice to ensure it gets there. disable is important and can be
+        // missed by outgoing tele packets
+        robotSPI.writeBytes(initData);
     }
 }
 
@@ -152,10 +158,12 @@ void SPRK::loop() {
     }
 
     if (getCurrentState() == RobotState::TELEOP) {
-        uint8_t leftX = joystick->getAxis(JoystickAxis::LEFT_X) * 127;
-        uint8_t leftY = joystick->getAxis(JoystickAxis::LEFT_Y) * 127;
+        // Get axis values as floats (-1.0 to 1.0)
+        int leftXRaw = joystick->getAxis(JoystickAxis::LEFT_X) * 100;
+        int leftYRaw = joystick->getAxis(JoystickAxis::LEFT_Y) * 100;
+        int rightXRaw = joystick->getAxis(JoystickAxis::RIGHT_X) * 100;
 
-        drivetrain->robotCentric(leftX, leftY, 0);
+        drivetrain->robotCentric(leftXRaw, leftYRaw, rightXRaw);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -168,6 +176,7 @@ void SPRK::addTriggers() {
         .onTrueStatic([&telem = this->telemetry](bool enabled) {
             telem.log((enabled ? "Enabling" : "Disabling") + std::string(" verbose logging."),
                       LogLevel::INFO);
+            
             telem.setGlobalVerbose(enabled);
         });
 

@@ -162,9 +162,9 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
 
                 for (const auto& [axis, value] : axisMap) {
                     joystick->setAxis(axis, value / 100.0);
-                    telemetry.log("Axis " + std::to_string(static_cast<int>(axis)) + " set to " +
-                                      std::to_string(value),
-                                  LogLevel::VERBOSE, true);
+                    // telemetry.log("Axis " + std::to_string(static_cast<int>(axis)) + " set to " +
+                    //                   std::to_string(value),
+                    //               LogLevel::VERBOSE, true);
                 }
                 // if (teleopInstructions.find("joystick") != teleopInstructions.end()) {
                 //     teleopInstructions["joystick"](axisMap);

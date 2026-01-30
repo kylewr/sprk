@@ -11,21 +11,29 @@ class Drivetrain : public Subsystem {
         Drivetrain(RobotSPI* spi) : Subsystem("DRIVETRAIN"), spi(spi) {}
         ~Drivetrain() = default;
 
-        void robotCentric(uint8_t x, uint8_t y, uint8_t r) {
-            feedMotor(0, y + r - x); // front left
-            feedMotor(1, y - r + x); // front right
-            feedMotor(2, y + r + x); // back left
-            feedMotor(3, y - r - x); // back right
+        void robotCentric(int x, int y, int r) {
+            feedMotor(0, y - r + x); // front left
+            feedMotor(1, y + r - x); // front right
+            feedMotor(2, y - r - x); // back left
+            feedMotor(3, y + r + x); // back right
+
+            // log("Drivetrain command - X: " + std::to_string(x) + " Y: " + std::to_string(y) +
+            //         " R: " + std::to_string(r),
+            //     LogLevel::VERBOSE);
+
             sendCommands();
         }
 
-        void feedMotor(unsigned int motorIndex, uint8_t speed) {
-            speed += 127;
-            if (speed > 255) {
-                speed = 255;
-            } else if (speed < 0) {
-                speed = 0;
+        void feedMotor(unsigned int motorIndex, int speed) {
+            // speed is -100-100
+            
+            if (speed > 100) {
+                speed = 100;
+            } else if (speed < -100) {
+                speed = -100;
             }
+
+            speed = static_cast<uint8_t>((speed + 100) * 127 / 100); // map to 0-254
             switch (motorIndex) {
                 case 0:
                     flSpeed = speed;
@@ -52,7 +60,7 @@ class Drivetrain : public Subsystem {
                                         br, bl};
             spi->writeBytes(commandBytes);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
         RobotSPI* spi;

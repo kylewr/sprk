@@ -191,6 +191,7 @@ class SocketXBoxController : public SocketJoystick {
         bool getButton(JoystickButton button) const override {
             return pressedButtons.find(button) != pressedButtons.end();
         };
+        
         float getAxis(JoystickAxis axis) const override {
             auto it = axisStates.find(axis);
             if (it != axisStates.end()) {
