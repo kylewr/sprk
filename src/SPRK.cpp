@@ -1,0 +1,295 @@
+#include "SPRK.hpp"
+
+#include <algorithm>
+#include <thread>
+
+#include "SPIMappings.hpp"
+#include "base/RobotHelpers.hpp"
+#include "base/Trigger.hpp"
+#include "base/simulation/SerialSimulation.hpp"
+
+SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000, 0, true) {
+    try {
+        robotSPI.initialize();
+    } catch (const std::runtime_error& e) {
+        telemetry.log(std::string("Failed to initialize SPI: ") + e.what(), LogLevel::ERROR, true);
+        telemetry.log("Continuing in simulation mode.", LogLevel::WARN, true);
+    }
+
+    registerJoystick(new SocketXBoxController());
+
+    RobotInfoArgs* infoArgs = new RobotInfoArgs();
+    infoArgs->message = "SPRK Robot\nDeveloped by Kyle Rush";
+    infoArgs->autons = this->getAutonNames();
+    infoArgs->flags.push_back(RobotFlags::CAMERA);
+    // infoArgs->flags.push_back(RobotFlags::SIMULATION);
+
+    setInfoArgs(infoArgs);
+
+    SocketManagerArgs* socketArgs = new SocketManagerArgs();
+    socketArgs->ipAddress = sprkArgs->ipAddress;
+    socketArgs->portNumber = sprkArgs->portNumber;
+
+    setSocketArguments(socketArgs);
+
+    if (!socketManager.initializeSocket()) {
+        telemetry.log("Failed to initialize socket.", LogLevel::ERROR, true);
+    }
+
+    serialInterface =
+        new SerialInterface(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+    serialInterface->onReceive([this](const std::string& msg) {
+        this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
+    });
+
+    // if (serialInterface->openPort()) {
+    //     telemetry.log("Serial port opened on " + std::string(Constants::IOMap::SERIAL_PORT) +
+    //                       " opened.",
+    //                   LogLevel::INFO);
+    // } else {
+    //     telemetry.log("Failed to open serial port on " +
+    //                       std::string(Constants::IOMap::SERIAL_PORT) + "! Attempting
+    //                       simulation.",
+    //                   LogLevel::ERROR);
+
+    //     delete serialInterface;
+
+    //     serialInterface =
+    //         new SerialSimulation(Constants::IOMap::SERIAL_PORT, Constants::IOMap::BAUD_RATE);
+    //     serialInterface->onReceive([this](const std::string& msg) {
+    //         this->telemetry.log("Received serial message: " + msg, LogLevel::VERBOSE);
+    //     });
+
+    //     serialInterface->openPort();
+
+    //     telemetry.log("Serial simulation interface initialized.", LogLevel::INFO);
+    // }
+
+    arm = new Arm(serialInterface, &robotSPI);
+    drivetrain = new Drivetrain(&robotSPI);
+    pinchers = new Pinchers(&robotSPI);
+
+    addSubsystem({arm, drivetrain, pinchers});
+
+    addJoystickAxies();
+    addTriggers();
+}
+
+bool SPRK::autonomousInit() {
+    return attemptEnable();
+}
+
+bool SPRK::teleopInit() {
+    return attemptEnable();
+}
+
+void SPRK::disabledInit() {
+    if (!isSimulation()) {
+        static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
+
+        robotSPI.writeBytes(initData);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+        // send twice to ensure it gets there. disable is important and can be
+        // missed by outgoing tele packets
+        robotSPI.writeBytes(initData);
+    }
+}
+
+bool SPRK::attemptEnable() {
+    if (isSimulation()) {
+        return true;
+    }
+
+    static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_ENABLE)};
+    static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
+
+    // Send enable data
+    robotSPI.writeBytes(initData);
+
+    // Wait for slave to process
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    // Read response
+    static uint8_t response[16] = {0};
+    robotSPI.writeAndRead(dummyData, response);
+
+    // telemetry.log("Received enable response over SPI: 0x" + std::to_string(response[0]),
+    // LogLevel::INFO);
+    return response[0] == responseToByte(RESPONSE_IDENT::ACK_ROBOT_ENABLE);
+}
+
+void SPRK::loop() {
+    // Send heartbeat to MCU
+    static const uint8_t heartbeatDataDisabled[16] = {
+        commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_DISABLE)};
+    static const uint8_t heartbeatDataEnabled[16] = {
+        commandToByte(COMMAND_IDENT::MASTER_HEARTBEAT_ENABLED)};
+
+    static uint64_t lastHeartbeatTime = 0;
+    uint64_t currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::system_clock::now().time_since_epoch())
+                               .count();
+    if (currentTime - lastHeartbeatTime >= 800) {
+        lastHeartbeatTime = currentTime;
+        static uint8_t response[16] = {0};
+        static const uint8_t dummyData[16] = {commandToByte(COMMAND_IDENT::NO_OP)};
+        robotSPI.writeBytes(getCurrentState() == RobotState::DISABLED ? heartbeatDataDisabled
+                                                                      : heartbeatDataEnabled);
+        std::this_thread::sleep_for(std::chrono::milliseconds(4));
+
+        robotSPI.writeAndRead(dummyData, response);
+
+        if (response[0] == responseToByte(RESPONSE_IDENT::ACK_MCU_ESTOP)) {
+            changeState(RobotState::DISABLED);
+            telemetry.log("MCU has reached an unrecoverable error state. Sending RESET",
+                          LogLevel::ERROR);
+
+            response[0] = 0;
+
+            static const uint8_t resetData[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
+            robotSPI.writeBytes(resetData);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    if (getCurrentState() == RobotState::TELEOP) {
+        // Get axis values as floats (-1.0 to 1.0)
+        int leftXRaw = joystick->getAxis(JoystickAxis::LEFT_X) * 100;
+        int leftYRaw = joystick->getAxis(JoystickAxis::LEFT_Y) * 100;
+        int rightXRaw = joystick->getAxis(JoystickAxis::RIGHT_X) * 100;
+
+        drivetrain->robotCentric(leftXRaw, leftYRaw, rightXRaw);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
+
+void SPRK::addJoystickAxies() {}
+
+void SPRK::addTriggers() {
+    Trigger::create(joystick->buttonEvent(JoystickButton::START))
+        .onTrueStatic([&telem = this->telemetry](bool enabled) {
+            telem.log((enabled ? "Enabling" : "Disabling") + std::string(" verbose logging."),
+                      LogLevel::INFO);
+            
+            telem.setGlobalVerbose(enabled);
+        });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 100, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, -100, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADLEFT))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(-100, 0, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADRIGHT))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(100, 0, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
+    //     .onTrue([&pinch = this->pinchers]() {
+    //         pinch->log("Setting pinchers to 0 degrees.", LogLevel::VERBOSE);
+    //         pinch->setAngle(0);
+    //     })
+    //     .onFalse([&pinch = this->pinchers]() {
+    //         pinch->log("Setting pinchers to 90 degrees.", LogLevel::VERBOSE);
+    //         pinch->setAngle(180);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
+    //     .onTrue([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
+    //         spi.writeBytes(data);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+    //     .onTrue([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ONE)};
+    //         spi.writeBytes(data);
+    //     })
+    //     .onFalse([&spi = this->robotSPI]() {
+    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ZERO)};
+    //         spi.writeBytes(data);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving turret CW.", LogLevel::VERBOSE);
+    //         arm->moveTurret(StepperDirection::CW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping turret.", LogLevel::VERBOSE);
+    //         arm->moveTurret(StepperDirection::STOP);
+    //     });
+    // Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving turret CCW.", LogLevel::VERBOSE);
+    //         arm->moveTurret(StepperDirection::CCW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping turret.", LogLevel::VERBOSE);
+    //         arm->moveTurret(StepperDirection::STOP);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving arm CW.", LogLevel::VERBOSE);
+    //         arm->moveArm(StepperDirection::CW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping arm.", LogLevel::VERBOSE);
+    //         arm->moveArm(StepperDirection::STOP);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving arm CCW.", LogLevel::VERBOSE);
+    //         arm->moveArm(StepperDirection::CCW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping arm.", LogLevel::VERBOSE);
+    //         arm->moveArm(StepperDirection::STOP);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADRIGHT))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving wrist CW.", LogLevel::VERBOSE);
+    //         arm->moveWrist(StepperDirection::CW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping wrist.", LogLevel::VERBOSE);
+    //         arm->moveWrist(StepperDirection::STOP);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADLEFT))
+    //     .onTrue([&arm = this->arm]() {
+    //         arm->log("Moving wrist CCW.", LogLevel::VERBOSE);
+    //         arm->moveWrist(StepperDirection::CCW);
+    //     })
+    //     .onFalse([&arm = this->arm]() {
+    //         arm->log("Stopping wrist.", LogLevel::VERBOSE);
+    //         arm->moveWrist(StepperDirection::STOP);
+    //     });
+}
