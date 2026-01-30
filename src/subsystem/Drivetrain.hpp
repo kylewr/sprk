@@ -12,13 +12,20 @@ class Drivetrain : public Subsystem {
         ~Drivetrain() = default;
 
         void robotCentric(uint8_t x, uint8_t y, uint8_t r) {
-            feedMotor(0, y + r - x);  // front left
-            feedMotor(1, y - r + x);  // front right
-            feedMotor(2, y + r + x);  // back left
-            feedMotor(3, y - r - x);  // back right
+            feedMotor(0, y + r - x); // front left
+            feedMotor(1, y - r + x); // front right
+            feedMotor(2, y + r + x); // back left
+            feedMotor(3, y - r - x); // back right
+            sendCommands();
         }
 
         void feedMotor(unsigned int motorIndex, uint8_t speed) {
+            speed += 127;
+            if (speed > 255) {
+                speed = 255;
+            } else if (speed < 0) {
+                speed = 0;
+            }
             switch (motorIndex) {
                 case 0:
                     flSpeed = speed;
@@ -45,7 +52,7 @@ class Drivetrain : public Subsystem {
                                         br, bl};
             spi->writeBytes(commandBytes);
 
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         RobotSPI* spi;

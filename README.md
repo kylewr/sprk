@@ -11,7 +11,7 @@ There are two main parts to this project:
 
 # Robot
 - Raspberry Pi 4 B
-- Runs the `robot/Main.py` robot program
+- Runs the `robot/Main.cpp` robot program
 - Controls the motors and servo over native GPIO via PWM
 - Connects to the Arduino over serial
 - Connects to the [operator console](https://github.com/WindowsVistaisCool/sprk-controller) over a socket

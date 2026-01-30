@@ -145,18 +145,33 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
         std::string& command = parts[0];
 
         if (command == "jstk") {
-            // if (parts.size() < 2) {
-            //     continue;
-            // }
-            // std::vector<int> dctrls(parts.begin() + 1, parts.end());
-            // try {
-            //     JoystickAxis axis = JoystickAxisUtil::convertFromList(dctrls);
-            //     if (teleopInstructions.find("joystick") != teleopInstructions.end()) {
-            //         teleopInstructions["joystick"](axis);
-            //     }
-            // } catch (const std::invalid_argument& e) {
-            //     telemetry.log("Failed to decode joystick axes: " + message, LogLevel::WARN);
-            // }
+            if (parts.size() < 2) {
+                continue;
+            }
+            std::vector<int> dctrls;
+            for (size_t i = 1; i < parts.size(); ++i) {
+                try {
+                    dctrls.push_back(std::stoi(parts[i]));
+                } catch (const std::exception& e) {
+                    telemetry.log("Failed to parse joystick value: " + parts[i], LogLevel::WARN);
+                }
+            }
+            try {
+                std::unordered_map<JoystickAxis, float> axisMap =
+                    JoystickAxisUtil::convertFromList(dctrls);
+
+                for (const auto& [axis, value] : axisMap) {
+                    joystick->setAxis(axis, value / 100.0);
+                    telemetry.log("Axis " + std::to_string(static_cast<int>(axis)) + " set to " +
+                                      std::to_string(value),
+                                  LogLevel::VERBOSE, true);
+                }
+                // if (teleopInstructions.find("joystick") != teleopInstructions.end()) {
+                //     teleopInstructions["joystick"](axisMap);
+                // }
+            } catch (const std::invalid_argument& e) {
+                telemetry.log("Failed to decode joystick axes: " + message, LogLevel::WARN);
+            }
         } else if (command == "btn" || command == "te-btn") {
             if (parts.size() < 2) {
                 continue;
@@ -166,7 +181,6 @@ void RobotBase::handleTeleopPacket(const std::string& packet) {
 
             try {
                 joystick->setButton(JoystickButtonUtil::fromString(name));
-                telemetry.log("Processed teleop button: " + name, LogLevel::INFO);
             } catch (const std::invalid_argument& e) {
                 telemetry.log("Received an unknown teleop button: " + name, LogLevel::WARN);
             }

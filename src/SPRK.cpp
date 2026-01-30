@@ -86,7 +86,7 @@ bool SPRK::teleopInit() {
 void SPRK::disabledInit() {
     if (!isSimulation()) {
         static const uint8_t initData[16] = {commandToByte(COMMAND_IDENT::ROBOT_DISABLE)};
-    
+
         robotSPI.writeBytes(initData);
     }
 }
@@ -146,10 +146,19 @@ void SPRK::loop() {
             robotSPI.writeBytes(resetData);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        std::this_thread::sleep_for(std::chrono::milliseconds(6));
     } else {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+
+    if (getCurrentState() == RobotState::TELEOP) {
+        uint8_t leftX = joystick->getAxis(JoystickAxis::LEFT_X) * 127;
+        uint8_t leftY = joystick->getAxis(JoystickAxis::LEFT_Y) * 127;
+
+        drivetrain->robotCentric(leftX, leftY, 0);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 void SPRK::addJoystickAxies() {}
@@ -161,6 +170,34 @@ void SPRK::addTriggers() {
                       LogLevel::INFO);
             telem.setGlobalVerbose(enabled);
         });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 100, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, -100, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADLEFT))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(-100, 0, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
+
+    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADRIGHT))
+    //     .onTrue([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(100, 0, 0);
+    //     }).onFalse([&drivetrain = this->drivetrain]() {
+    //         drivetrain->robotCentric(0, 0, 0);
+    //     });
 
     // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
     //     .onTrue([&pinch = this->pinchers]() {

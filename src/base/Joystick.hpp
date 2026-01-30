@@ -168,6 +168,14 @@ class SocketJoystick {
 
         virtual void setButton(JoystickButton) = 0;
 
+        virtual float getAxis(JoystickAxis axis) const {
+            return 0.0f;
+        }
+
+        virtual void setAxis(JoystickAxis axis, float value) {
+            // Default implementation does nothing
+        }
+
         virtual std::function<bool()> buttonEvent(JoystickButton button) {
             return [this, button]() {
                 return this->getButton(button);
@@ -183,13 +191,13 @@ class SocketXBoxController : public SocketJoystick {
         bool getButton(JoystickButton button) const override {
             return pressedButtons.find(button) != pressedButtons.end();
         };
-        // float getAxis(JoystickAxis axis) const {
-        //     auto it = axisStates.find(axis);
-        //     if (it != axisStates.end()) {
-        //         return it->second;
-        //     }
-        //     return 0.0f;
-        // };
+        float getAxis(JoystickAxis axis) const override {
+            auto it = axisStates.find(axis);
+            if (it != axisStates.end()) {
+                return it->second;
+            }
+            return 0.0f;
+        };
 
         void setButton(JoystickButton button) override {
             JoystickButton pressedValue = JoystickButtonUtil::getPressedValue(button);
@@ -201,9 +209,9 @@ class SocketXBoxController : public SocketJoystick {
             }
         };
 
-        // void setAxisState(JoystickAxis axis, float value) {
-        //     axisStates[axis] = value;
-        // };
+        void setAxis(JoystickAxis axis, float value) override {
+            axisStates[axis] = value;
+        };
 
     private:
         std::unordered_set<JoystickButton> pressedButtons;
