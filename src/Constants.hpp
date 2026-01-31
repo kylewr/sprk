@@ -14,4 +14,11 @@ namespace Constants {
             static constexpr const char* SERIAL_PORT = "/dev/ttyACM0";
             static constexpr unsigned int BAUD_RATE = B115200;
     };
+
+    class CameraConstants {
+        public:
+            static constexpr const char* RES = "1280x1024";
+            static constexpr int FPS = 30;
+            static constexpr const char* EXPOSURE = "50";
+    };
 }

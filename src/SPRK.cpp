@@ -69,10 +69,18 @@ SPRK::SPRK(SPRKArgs* args) : RobotBase(), sprkArgs(args), robotSPI(0, 8, 1000000
     drivetrain = new Drivetrain(&robotSPI);
     pinchers = new Pinchers(&robotSPI);
 
+    camera = new RobotCamera();
+
     addSubsystem({arm, drivetrain, pinchers});
 
     addJoystickAxies();
     addTriggers();
+}
+
+SPRK::~SPRK() {
+    delete camera;
+    
+    // subsystem cleanup is handled by RobotBase destructor
 }
 
 bool SPRK::autonomousInit() {
@@ -173,66 +181,21 @@ void SPRK::addJoystickAxies() {}
 
 void SPRK::addTriggers() {
     Trigger::create(joystick->buttonEvent(JoystickButton::START))
-        .onTrueStatic([&telem = this->telemetry](bool enabled) {
-            telem.log((enabled ? "Enabling" : "Disabling") + std::string(" verbose logging."),
+        .onTrueStatic([&t = this->telemetry](bool enabled) {
+            t.log((enabled ? "Enabling" : "Disabling") + std::string(" verbose logging."),
                       LogLevel::INFO);
-            
-            telem.setGlobalVerbose(enabled);
+
+            t.setGlobalVerbose(enabled);
         });
 
-    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADUP))
-    //     .onTrue([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, 100, 0);
-    //     }).onFalse([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, 0, 0);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
-    //     .onTrue([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, -100, 0);
-    //     }).onFalse([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, 0, 0);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADLEFT))
-    //     .onTrue([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(-100, 0, 0);
-    //     }).onFalse([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, 0, 0);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADRIGHT))
-    //     .onTrue([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(100, 0, 0);
-    //     }).onFalse([&drivetrain = this->drivetrain]() {
-    //         drivetrain->robotCentric(0, 0, 0);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
-    //     .onTrue([&pinch = this->pinchers]() {
-    //         pinch->log("Setting pinchers to 0 degrees.", LogLevel::VERBOSE);
-    //         pinch->setAngle(0);
-    //     })
-    //     .onFalse([&pinch = this->pinchers]() {
-    //         pinch->log("Setting pinchers to 90 degrees.", LogLevel::VERBOSE);
-    //         pinch->setAngle(180);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
-    //     .onTrue([&spi = this->robotSPI]() {
-    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::SYSTEM_RESET)};
-    //         spi.writeBytes(data);
-    //     });
-
-    // Trigger::create(joystick->buttonEvent(JoystickButton::RIGHTSHOULDER))
-    //     .onTrue([&spi = this->robotSPI]() {
-    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ONE)};
-    //         spi.writeBytes(data);
-    //     })
-    //     .onFalse([&spi = this->robotSPI]() {
-    //         static const uint8_t data[16] = {commandToByte(COMMAND_IDENT::TEST_ZERO)};
-    //         spi.writeBytes(data);
-    //     });
+    Trigger::create(joystick->buttonEvent(JoystickButton::BACK)).onTrue([&camera = this->camera, &t = this->telemetry] {
+        if (camera != nullptr && !camera->isStarted()) {
+            t.log("Camera started!", LogLevel::INFO);
+            camera->start();
+        } else {
+            t.log("Error starting camera.", LogLevel::WARN);
+        }
+    });
 
     // Trigger::create(joystick->buttonEvent(JoystickButton::LEFTSHOULDER))
     //     .onTrue([&arm = this->arm]() {
@@ -263,7 +226,7 @@ void SPRK::addTriggers() {
     //         arm->moveArm(StepperDirection::STOP);
     //     });
 
-    // Trigger::create(joystick->buttonEvent(JoystickButton::DPADDOWN))
+    // Trigger::create(joystick->buttonEv/ent(JoystickButton::DPADDOWN))
     //     .onTrue([&arm = this->arm]() {
     //         arm->log("Moving arm CCW.", LogLevel::VERBOSE);
     //         arm->moveArm(StepperDirection::CCW);

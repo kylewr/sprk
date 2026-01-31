@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "RobotCamera.hpp"
+
 #include "src/base/Joystick.hpp"
 #include "src/base/RobotBase.hpp"
 #include "src/base/SerialInterface.hpp"
@@ -28,7 +30,7 @@ class SPRKArgs {
 class SPRK final : public RobotBase {
     public:
         explicit SPRK(SPRKArgs* args);
-        ~SPRK() = default;
+        ~SPRK();
 
         bool autonomousInit() override;
         bool teleopInit() override;
@@ -48,12 +50,13 @@ class SPRK final : public RobotBase {
         SPRKArgs* sprkArgs;
 
         RobotSPI robotSPI;
+        SerialInterface* serialInterface;
 
         Arm* arm;
         Drivetrain* drivetrain;
         Pinchers* pinchers;
 
-        SerialInterface* serialInterface;
+        RobotCamera* camera;
 
         void loop() override;
 
