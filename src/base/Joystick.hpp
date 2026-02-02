@@ -168,13 +168,11 @@ class SocketJoystick {
 
         virtual void setButton(JoystickButton) = 0;
 
-        virtual float getAxis(JoystickAxis axis) const {
+        virtual float getAxis(JoystickAxis) const {
             return 0.0f;
         }
 
-        virtual void setAxis(JoystickAxis axis, float value) {
-            // Default implementation does nothing
-        }
+        virtual void setAxis(JoystickAxis, float) {}
 
         virtual std::function<bool()> buttonEvent(JoystickButton button) {
             return [this, button]() {
@@ -191,7 +189,7 @@ class SocketXBoxController : public SocketJoystick {
         bool getButton(JoystickButton button) const override {
             return pressedButtons.find(button) != pressedButtons.end();
         };
-        
+
         float getAxis(JoystickAxis axis) const override {
             auto it = axisStates.find(axis);
             if (it != axisStates.end()) {
