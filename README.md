@@ -9,9 +9,10 @@
 The purpose of this was to create a general purpose robot framework, mainly for use on the SPRK robot. Hence, why `src/base/` exists.
 
 ## Building the project
+Ensure you are in the root of the project first.
 1. For a `x64` linux target, run
 ```bash
-mkdir ./build && cd ./build && cmake ./src && cmake --build . --clean-first
+mkdir ./build && cd ./build && cmake ../src && cmake --build . --clean-first
 ```
 The output will be an executable `./robot`
 
