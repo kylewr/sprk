@@ -26,7 +26,7 @@ SPRK::SPRK(SPRKArgs* args)
 
     RobotInfoArgs* infoArgs = new RobotInfoArgs();
     infoArgs->message = Constants::SPRKConstants::INFOARGS_MESSAGE;
-    infoArgs->autons = this->getAutonNames();
+    infoArgs->autons = getAutonNames();
     infoArgs->flags.push_back(RobotFlags::CAMERA);
     // infoArgs->flags.push_back(RobotFlags::SIMULATION);
 
