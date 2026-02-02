@@ -1,0 +1,71 @@
+name: Build Robot
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-linux-x64:
+    name: Build Linux x64
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+        
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake ../src/
+        
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --clean-first
+        
+    - name: Upload Linux x64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: robot-linux-x64
+        path: build/robot
+        if-no-files-found: error
+
+  build-rpi:
+    name: Build Raspberry Pi (ARM64)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install cross-compilation toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        
+    - name: Configure CMake for RPi
+      run: |
+        mkdir -p build-rpi
+        cd build-rpi
+        cmake ../src/ -DCMAKE_TOOLCHAIN_FILE=../toolchain-rpi.cmake
+        
+    - name: Build for RPi
+      run: |
+        cd build-rpi
+        cmake --build . --clean-first
+        
+    - name: Upload RPi artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: robot-rpi-arm64
+        path: build-rpi/robot
+        if-no-files-found: error
