@@ -23,6 +23,8 @@ mkdir ./build-arm && cd ./build-arm && cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain
 ### Deploying to RPi
 Yes, the IP is hardcoded in `deploy.sh`. There is a VS code task that runs it.
 
-
 ## If you read this far...
 Don't ask me what SPRK stands for. I don't know either. Originally, the robot was named SHARK for "Self Height Adjusting Robot with Kinematics", and when I realized I didn't have CAD experience at the time, was quickly scrapped. We put off the renaming the project until the day of the STEM showcase.
+
+# Credits
+- Leon de Boer: C SPI logic
