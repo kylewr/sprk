@@ -3,14 +3,15 @@
 #include <thread>
 
 #include "SPRK.hpp"
+#include "Constants.hpp"
 
 std::unique_ptr<SPRK> robot;
 
 int main() {
     SPRKArgs* args = new SPRKArgs();
 
-    args->ipAddress = "0.0.0.0";
-    args->portNumber = 8007;
+    args->ipAddress = Constants::SPRKConstants::IP_ADDRESS;
+    args->portNumber = Constants::SPRKConstants::PORT;
 
     robot = std::make_unique<SPRK>(args);
 

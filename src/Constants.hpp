@@ -2,7 +2,26 @@
 
 #include <termios.h>
 
+#define SPI_BYTE_SIZE 16
+
 namespace Constants {
+    class SPRKConstants {
+        public:
+            static constexpr unsigned int PORT = 8008;
+            static constexpr const char* IP_ADDRESS = "0.0.0.0";
+            
+            static constexpr const char* INFOARGS_MESSAGE = "SPRK Robot\nDeveloped by Kyle Rush";
+    };
+
+    class SPIConstants {
+        public:
+            static constexpr unsigned int CHANNEL = 0;
+            static constexpr unsigned int CHIP_SELECT_PIN = 8;
+            static constexpr unsigned int CLOCK_SPEED_HZ = 1000000;
+            static constexpr unsigned int MODE = 0;
+            static constexpr bool MSBFIRST = true;
+    };
+
     class IOMap {
         public:
             static constexpr unsigned int SERVO_PORT = 8;
